@@ -8,7 +8,9 @@ public class Inheritance {
 
         System.out.printf("child.var:\t%d\n", child.getVar());
 
-        System.out.printf("child.parentVar:\t%d\n",child.getParentVar());
+        System.out.printf("child.parentVar:\t%d\n", child.getParentVar());
+
+        System.out.printf("child.getFoo():\t%d\n", child.getFoo());
     }
 }
 
@@ -18,6 +20,8 @@ class Parent {
     private int weird = 1;
 
     private int parentVar;
+
+    private int foo = 100;
 
     public Parent() {
         this.parentVar = this.weird;
@@ -39,10 +43,18 @@ class Parent {
     public int getParentVar() {
         return this.parentVar;
     }
+
+    public int getFoo() {
+        return this.foo;
+    }
 }
 
 class Child extends Parent {
     private int var = 2;
+
+    private int parentVar = 200;
+
+    private int foo = 300;
 
     public Child(){
         this.var = 3;
@@ -56,5 +68,10 @@ class Child extends Parent {
     @Override
     public int getVar() {
         return this.var;
+    }
+
+    @Override
+    public int getFoo() {
+        return super.getFoo();
     }
 }

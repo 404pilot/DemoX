@@ -63,10 +63,6 @@ Steps:
 
 ## Inheritance
 
-Child instance = only one copy of all variables + all parent's methods + all child's methods
-
-变量一切以Child定义的为准 --> `var` 只有一份
-
 ### init
 
 1. 为child&parent分配空间（给予default value）
@@ -91,7 +87,13 @@ new Child()：
 ### this
 
 * this.var --> this 为代码所在的类
-* this.method() --> this 为正在new的那个类<p>
+* this.method() --> this 为正在new的那个类
+
 	`Parent child = new Child()`
+	
+	无论是在constructor里，还是parent的method里，对于this.method()而言是运行期动态绑定的，但是this只能看到declaredClass的methods，因为要编译时只会知道declaredClass类下的methods。
+	
+	类似于`Parent child`中child只能调用Parent声明的methods。
+
 
 

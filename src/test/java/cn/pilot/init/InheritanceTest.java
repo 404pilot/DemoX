@@ -14,5 +14,6 @@ public class InheritanceTest {
         assertTrue(child.getWeird() == 0);
         assertTrue(child.getVar() == 3);
         assertTrue(child.getParentVar() == 1);
+        assertTrue(child.getFoo() == 100);
     }
 }
