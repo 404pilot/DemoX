@@ -59,3 +59,39 @@ Steps:
 
 1. 先初始化class variables，然后instance variables
 2. 对于variables，先声明所有variables的类型（分配空间，并且有默认值），再按从上到下的顺序，加上constructor里的逻辑，按顺序赋值。
+3. Class是编译期就生成好，静态变量已经初始化完毕。
+
+## Inheritance
+
+Child instance = only one copy of all variables + all parent's methods + all child's methods
+
+变量一切以Child定义的为准 --> `var` 只有一份
+
+### init
+
+1. 为child&parent分配空间（给予default value）
+2. 初始化parent
+3. 初始化child
+
+new Child()：
+
+1. [Parent] 运行`this.parentVar = this.weird`
+
+2. [Parent] 运行`this.weird = this.weird()`
+
+	第一个this是parent类，第二个this是child 
+	
+3. [Parent] 运行`child.weird()`
+
+	这个时候child还未初始化，但是内存已经分配了空间，但是只有默认值
+	
+4. [Child] 运行`this.var = 3`
+	覆写了`var`
+
+### this
+
+* this.var --> this 为代码所在的类
+* this.method() --> this 为正在new的那个类<p>
+	`Parent child = new Child()`
+
+
