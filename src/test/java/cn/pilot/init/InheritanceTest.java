@@ -2,20 +2,10 @@ package cn.pilot.init;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class InheritanceTest {
-    @Test
-    public void test() throws Exception {
-        Child child = new Child();
-
-        int weird = child.getWeird();
-
-        assertTrue(child.getWeird() == 0);
-        assertTrue(child.getVar() == 3);
-        assertTrue(child.getParentVar() == 1);
-        assertTrue(child.getFoo() == 100);
-    }
 
     @Test
     public void a() throws Exception {
@@ -23,12 +13,14 @@ public class InheritanceTest {
 
         assertTrue(pa.var == 1);
 
-        pa = (CA) pa;
+        pa = (CA) pa; // the type of pa is still PA
+        // previous line is equal to
+        // pa = (PA) ((CA) pa)
 
-        assertTrue(pa.var == 1); // TODO why?
+        assertTrue(pa.var == 1);
         assertTrue(((CA) pa).var == 2);
 
-        CA ca = (CA) pa;
+        CA ca = (CA) pa; // the type of ca is CA now
 
         assertTrue(ca.var == 2);
 
@@ -47,5 +39,16 @@ public class InheritanceTest {
         PC pc = new CC();
 
         assertTrue(pc.method() == 1);
+    }
+
+    @Test
+    public void d() throws Exception {
+        PD pd = new CD();
+
+        assertTrue(pd.getVar() == 100);
+        assertTrue(pd.getParentWeird() == 0);
+        assertTrue(pd.method() == 200); // call child.method()
+
+        assertTrue(((CD) pd).getChildWeird() == 200);
     }
 }

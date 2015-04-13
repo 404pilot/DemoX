@@ -71,7 +71,7 @@ Steps:
 
 new Child()：
 
-1. [Parent] 运行`this.parentVar = this.weird`
+1. [Parent] 运行`this.var = this.weird` --> var = 100
 
 2. [Parent] 运行`this.weird = this.weird()`
 
@@ -79,22 +79,19 @@ new Child()：
 	
 3. [Parent] 运行`child.weird()`
 
-	这个时候child还未初始化，但是内存已经分配了空间，但是只有默认值
-	
-4. [Child] 运行`this.var = 3`
-	覆写了`var`
+	这个时候child还未初始化，但是内存已经分配了空间，但是只有默认值 --> parent.weird = 0
 
 ### this
 
 * this.var --> this 为代码所在的类
 * this.method() --> this 为正在new的那个类
 
-	1. `Parent child = new Child()` --> this指Child
+	1. 执行`Parent child = new Child()`中，`this.method()` --> this指Child
 	2. `[Child]super.getX();[Parent]getX(){this.xxx}` --> this指super，即parent 
 	
 	无论是在constructor里，还是parent的method里，对于this.method()而言是运行期动态绑定的，但是this只能看到declaredClass的methods，因为要编译时只会知道declaredClass类下的methods。
 	
-	类似于`Parent child`中child只能调用Parent声明的methods。
+	所以`Parent child = new Child()`中child只能调用Parent声明的methods。
 
 
 

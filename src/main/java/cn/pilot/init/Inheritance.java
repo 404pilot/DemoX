@@ -2,15 +2,7 @@ package cn.pilot.init;
 
 public class Inheritance {
     public static void main(String[] args) {
-        Parent child = new Child();
 
-        System.out.printf("child.weird():\t%d\n", child.getWeird());
-
-        System.out.printf("child.var:\t%d\n", child.getVar());
-
-        System.out.printf("child.parentVar:\t%d\n", child.getParentVar());
-
-        System.out.printf("child.getFoo():\t%d\n", child.getFoo());
     }
 }
 // *************************************
@@ -59,66 +51,38 @@ class CC extends  PC{
 }
 
 // *************************************
+class PD {
+    private int weird = 100;
 
-
-class Parent {
     private int var = 1;
 
-    private int weird = 1;
-
-    private int parentVar;
-
-    private int foo = 100;
-
-    public Parent() {
-        this.parentVar = this.weird;
-        this.weird = this.weird();
+    public PD() {
+        this.var = this.weird;
+        this.weird = this.method();
     }
 
-    public int weird() {
-        return this.var;
+    public int method() {
+        return this.weird;
     }
 
-    public int getWeird() {
+    public int getParentWeird() {
         return this.weird;
     }
 
     public int getVar() {
         return this.var;
     }
-
-    public int getParentVar() {
-        return this.parentVar;
-    }
-
-    public int getFoo() {
-        return this.foo;
-    }
 }
 
-class Child extends Parent {
-    private int var = 2;
-
-    private int parentVar = 200;
-
-    private int foo = 300;
-
-    public Child(){
-        this.var = 3;
-    }
+class CD extends PD {
+    private int weird = 200;
 
     @Override
-    public int weird() {
-        return this.var;
+    public int method() {
+        return this.weird;
     }
 
-    @Override
-    public int getVar() {
-        return this.var;
-    }
-
-    @Override
-    public int getFoo() {
-        return super.getFoo();
+    public int getChildWeird() {
+        return this.weird;
     }
 }
