@@ -89,7 +89,8 @@ new Child()：
 * this.var --> this 为代码所在的类
 * this.method() --> this 为正在new的那个类
 
-	`Parent child = new Child()`
+	1. `Parent child = new Child()` --> this指Child
+	2. `[Child]super.getX();[Parent]getX(){this.xxx}` --> this指super，即parent 
 	
 	无论是在constructor里，还是parent的method里，对于this.method()而言是运行期动态绑定的，但是this只能看到declaredClass的methods，因为要编译时只会知道declaredClass类下的methods。
 	

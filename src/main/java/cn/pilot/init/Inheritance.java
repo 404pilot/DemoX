@@ -13,6 +13,53 @@ public class Inheritance {
         System.out.printf("child.getFoo():\t%d\n", child.getFoo());
     }
 }
+// *************************************
+class PA{
+    int var = 1;
+}
+
+class CA extends PA {
+    int var = 2;
+}
+
+// *************************************
+class PB{
+    private int var = 1;
+
+    public int getVar() {
+        return this.var;
+    }
+}
+
+class CB extends PB {
+    private int var = 2;
+
+    @Override
+    public int getVar() {
+        return this.var;
+    }
+}
+
+// *************************************
+class PC{
+    private int var = 1;
+
+    public int method() {
+        return this.var;
+    }
+}
+
+class CC extends  PC{
+    private int var = 2;
+
+    @Override
+    public int method() {
+        return super.method();
+    }
+}
+
+// *************************************
+
 
 class Parent {
     private int var = 1;
