@@ -86,3 +86,10 @@ class CD extends PD {
         return this.weird;
     }
 }
+
+// *************************************
+class PE{
+}
+
+class CE extends PE{
+}

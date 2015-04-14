@@ -2,7 +2,6 @@ package cn.pilot.init;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class InheritanceTest {
@@ -13,9 +12,10 @@ public class InheritanceTest {
 
         assertTrue(pa.var == 1);
 
-        pa = (CA) pa; // the type of pa is still PA
-        // previous line is equal to
-        // pa = (PA) ((CA) pa)
+        pa = (CA) pa;
+        // the type of pa is still PA
+        // this line is equal to
+        // pa = (PA) ((CA) pa) which means pa is assigned to itself
 
         assertTrue(pa.var == 1);
         assertTrue(((CA) pa).var == 2);
@@ -50,5 +50,17 @@ public class InheritanceTest {
         assertTrue(pd.method() == 200); // call child.method()
 
         assertTrue(((CD) pd).getChildWeird() == 200);
+    }
+
+    @Test
+    public void e() throws Exception {
+        PE pe = new CE();
+
+        assertTrue(pe instanceof CE);
+        assertTrue(pe instanceof PE);
+
+        CE ce = new CE();
+        assertTrue(ce instanceof CE);
+        assertTrue(ce instanceof PE);
     }
 }

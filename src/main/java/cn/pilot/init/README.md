@@ -87,11 +87,25 @@ new Child()：
 * this.method() --> this 为正在new的那个类
 
 	1. 执行`Parent child = new Child()`中，`this.method()` --> this指Child
-	2. `[Child]super.getX();[Parent]getX(){this.xxx}` --> this指super，即parent 
+	2. `[Child]super.getX();[Parent]getX(){this.xxx}` --> this指super，因为之前是调用的super.method()
 	
-	无论是在constructor里，还是parent的method里，对于this.method()而言是运行期动态绑定的，但是this只能看到declaredClass的methods，因为要编译时只会知道declaredClass类下的methods。
+##### `Parent ref = new Child()`
 	
-	所以`Parent child = new Child()`中child只能调用Parent声明的methods。
+无论是在constructor里，还是parent的method里，对于this.method()而言是运行期动态绑定的，但是this只能看到declaredClass的methods，因为要编译时只会知道declaredClass类下的methods。
+	
+所以ref只能调用Parent声明的methods。
 
+而且`ref instanceOf Child`  == true，可见ref就是Child类型，但只看的到父类declare的methods。
+
+### override?
+
+	class Parent{
+		private void method();
+	}
+	
+	class Child extends Parent {
+		// this is not an override method
+		public void method()
+	}
 
 
