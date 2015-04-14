@@ -18,4 +18,6 @@ Take a State Pattern for example
     class InsertedState;
     class ReadyState;
 
-When `VendingMachine vm = new VendingMachine()` is used in **client** which is normally not in a same package, `vm.changeState()` should not exposed to client, otherwise client can change the state which can result in mishebavior. 
+When `VendingMachine vm = new VendingMachine()` is used in **client** which is normally not in a same package, `vm.changeState()` should not exposed to client, otherwise client can change the state which can result in misbehavior. 
+
+And also, `default` can be used for constructor, so some classes can be only initialized inside the package.
