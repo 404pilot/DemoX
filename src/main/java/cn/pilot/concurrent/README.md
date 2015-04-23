@@ -32,8 +32,40 @@ Main thread (test thread) is not blocked and "destroy()" method will be called.
 
 But for java program, `main(String[] args)` will end after all threads end.
 
-#### Join
+#### join()
 
-Using `aThread.join()` to let current thread wait until `aThread` is finished.
+    main(){
+        aThread.join();
+    }
+
+Using `aThread.join()` to let `main` thread wait until `aThread` is finished.
 
 Threads scheduling is controlled by thread scheduler, there is no guarantee for a certain sequence for running threads.
+
+#### wait() & notify()
+
+`lockObject.wait()` and `lockObject.notify()` are using inside `sychronized(lockObject)` block.
+
+`lockObject.wait()` will
+
+1. release the holding of lockObject
+2. block current thread and wait for `notify()` being called.
+
+#### wait() & sleep()
+
+    synchronized(lockObject){
+        Thread.sleep(1000);
+    }
+    
+`Thread.sleep()` will not release the holding of lockObject.
+
+#### yield() & sleep() 
+
+`Thread.yield()` and `Thread.sleep()` are both Thread's static method.
+
+`yield()` will:
+
+1. put current thread into block state and wait for acquiring CPU next time.
+2. so other threads have chance to get current CPU. But `yield()` only give chances to those threads with the same priority.
+
+`sleep()` could give chances to some threads with a lower priority to get CPU.

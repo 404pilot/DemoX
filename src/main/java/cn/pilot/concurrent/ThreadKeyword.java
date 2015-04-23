@@ -1,6 +1,5 @@
 package cn.pilot.concurrent;
 
-import java.util.concurrent.TimeUnit;
 
 public class ThreadKeyword {
 
