@@ -69,3 +69,7 @@ Threads scheduling is controlled by thread scheduler, there is no guarantee for 
 2. so other threads have chance to get current CPU. But `yield()` only give chances to those threads with the same priority.
 
 `sleep()` could give chances to some threads with a lower priority to get CPU.
+
+## HashMap
+
+HashMap can be used for multiple threads for accessing different keys.
