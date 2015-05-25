@@ -1,4 +1,4 @@
-# Concurrent
+# Thread and Concurrent
 
 ## synchronized
 
@@ -23,6 +23,8 @@ It is basically the same as synchronized method, the concurrent block is only ac
 This is a fine-grained way to control concurrent block comparing using synchronized method. The codes, which are outside concurrent block but still inside the method, can be executed by two different threads at the same time.
 
 ## Thread
+
+### Basic
 
 #### JUnit with multi threads
 
@@ -70,6 +72,59 @@ Threads scheduling is controlled by thread scheduler, there is no guarantee for 
 
 `sleep()` could give chances to some threads with a lower priority to get CPU.
 
+
+### How to stop a thread
+
+Thread.stop()不安全，已不再建议使用。
+
+
 ## HashMap
 
 HashMap can be used for multiple threads for accessing different keys.
+
+## Executors
+
+### Runnable & Callable
+
+* Runnable 无返回值，可以抛出 checked exception
+* Callable 有返回值，不能抛出 checked exception
+
+Callable 可以替换 Runnable 了
+
+### shutdown() or shutdownNow()
+
+* `shutdown()`会等待当前 thread 运行完终止
+* `shutdownNow`直接终止当前 thread
+* `awaitTermination(timeout)`用在这两个方法之后，会返回 true/false 表明`shutdown()`和`shutdownNow()`是否在 timeout 之内终止成功。
+	* 当然，timeout 只是一个 max 值，如果 thread 在 timeout 之前就终止了的话，`awaitTermintaion()`是不会阻塞这个 thread 的
+
+**Best Practice**:
+
+``` java
+pool.shutdown(); // Disable new tasks from being submitted
+
+try {
+  // Wait a while for existing tasks to terminate
+  if (!pool.awaitTermination(60, TimeUnit.SECONDS)) {
+      pool.shutdownNow(); // Cancel currently executing tasks
+      // Wait a while for tasks to respond to being cancelled
+      if (!pool.awaitTermination(60, TimeUnit.SECONDS))
+          System.err.println("Pool did not terminate");
+  }
+} catch (InterruptedException ie) {
+  // (Re-)Cancel if current thread also interrupted
+  pool.shutdownNow();
+  // Preserve interrupt status
+  Thread.currentThread().interrupt();
+}
+```
+
+### Schedule()
+* `scheduleAtFixedRate(command, 1, 2, second)`：确定**固定时间点**去 schedule
+	* 如果 command 运行一次要花费1s，command 会从 1s、3s、5s、7s... 运行下去（从1s 开始是因为有个1s 的 initial delay）
+	* 如果 command 运行一次要花费3s，command 会从`1s, 4s, 7s, 10s...`运行下去（不要想当然 pool 会在 fix period 到达的时候 create 另一个 command 去运行）
+	* 当 command 花费时间大于 rate 的时间的时候，每次 command 一结束马上就开始新的运行
+* `scheduleWithFixedDelay(command, 1, 2, second)`：确定**每次 command 结束之后 delay 多久**去 schedule
+	* 如果 command 运行一次要花费3s，command 从1s，6s，11s..运行下去（每两个 command 之间的间隔是3s+2s 的 delay）
+
+
