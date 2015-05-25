@@ -1,10 +1,8 @@
 package cn.pilot.init;
 
 public class Weird {
-    static int CLASS_FOO = 20;
-
     final static Weird INSTANCE = new Weird(10);
-
+    static int CLASS_FOO = 20;
     static int CLASS_BAR = 20;
 
     int foo;

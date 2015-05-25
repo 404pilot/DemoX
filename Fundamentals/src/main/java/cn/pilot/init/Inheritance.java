@@ -5,8 +5,9 @@ public class Inheritance {
 
     }
 }
+
 // *************************************
-class PA{
+class PA {
     int var = 1;
 }
 
@@ -15,7 +16,7 @@ class CA extends PA {
 }
 
 // *************************************
-class PB{
+class PB {
     private int var = 1;
 
     public int getVar() {
@@ -33,7 +34,7 @@ class CB extends PB {
 }
 
 // *************************************
-class PC{
+class PC {
     private int var = 1;
 
     public int method() {
@@ -41,7 +42,7 @@ class PC{
     }
 }
 
-class CC extends  PC{
+class CC extends PC {
     private int var = 2;
 
     @Override
@@ -88,8 +89,8 @@ class CD extends PD {
 }
 
 // *************************************
-class PE{
+class PE {
 }
 
-class CE extends PE{
+class CE extends PE {
 }

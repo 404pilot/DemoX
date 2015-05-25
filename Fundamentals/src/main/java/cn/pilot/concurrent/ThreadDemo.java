@@ -12,6 +12,20 @@ public class ThreadDemo implements Runnable {
         this.self = self;
     }
 
+    public static void main(String[] args) throws Exception {
+        Object a = new Object();
+        Object b = new Object();
+        Object c = new Object();
+        ThreadDemo pa = new ThreadDemo("A", c, a);
+        ThreadDemo pb = new ThreadDemo("B", a, b);
+        ThreadDemo pc = new ThreadDemo("C", b, c);
+
+
+        new Thread(pa).start();
+        new Thread(pb).start();
+        new Thread(pc).start();
+    }
+
     @Override
     public void run() {
         int count = 10;
@@ -31,19 +45,5 @@ public class ThreadDemo implements Runnable {
             }
 
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        Object a = new Object();
-        Object b = new Object();
-        Object c = new Object();
-        ThreadDemo pa = new ThreadDemo("A", c, a);
-        ThreadDemo pb = new ThreadDemo("B", a, b);
-        ThreadDemo pc = new ThreadDemo("C", b, c);
-
-
-        new Thread(pa).start();
-        new Thread(pb).start();
-        new Thread(pc).start();
     }
 }

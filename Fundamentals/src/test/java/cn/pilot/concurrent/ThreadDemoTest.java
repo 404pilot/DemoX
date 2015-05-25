@@ -2,6 +2,8 @@ package cn.pilot.concurrent;
 
 import org.junit.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.*;
@@ -49,12 +51,6 @@ public class ThreadDemoTest {
                 }
             }
         };
-    }
-
-    private class CustomException extends Exception {
-        public CustomException(String message) {
-            super(message);
-        }
     }
 
     @Test
@@ -127,9 +123,11 @@ public class ThreadDemoTest {
 
         try {
             actual = result.get();
+            fail("impossible to get here");
         } catch (InterruptedException e) {
         } catch (ExecutionException e) {
-            assertThat("thread's sleep will be interrupted and throw exception", e.getCause(), instanceOf(InterruptedException.class));
+            assertThat("thread's sleep will be interrupted and throw exception",
+                    e.getCause(), instanceOf(InterruptedException.class));
         }
 
         assertThat("actual should be null", actual, nullValue());
@@ -146,16 +144,18 @@ public class ThreadDemoTest {
             }
         });
 
-        long start = System.currentTimeMillis();
+        Instant start = Instant.now();
 
         pool.shutdown(); // initiate a shutdown immediately
 
         try {
             pool.awaitTermination(100, TimeUnit.SECONDS);
 
-            long end = System.currentTimeMillis();
+            Instant end = Instant.now();
 
-            assertThat("timeout is a max value", (int) (end - start), lessThan(1000));
+            int durations = (int) Duration.between(start, end).getSeconds();
+
+            assertThat("timeout is a max value", durations, lessThan(1000));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -222,5 +222,11 @@ public class ThreadDemoTest {
         // delay 1s
         // 3s -> start
         assertThat("only twice", times.size(), equalTo(1));
+    }
+
+    private class CustomException extends Exception {
+        public CustomException(String message) {
+            super(message);
+        }
     }
 }

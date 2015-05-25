@@ -16,18 +16,6 @@ public class ConcurrentHashmapThread implements Runnable {
         this.url = url;
     }
 
-    @Override
-    public void run() {
-        for (int i = 0; i < 100; i++) {
-            InMemory.urls.put(url, String.valueOf(i));
-            urls.put(url, String.valueOf(i));
-        }
-    }
-
-    public HashMap<String, String> getUrls() {
-        return this.urls;
-    }
-
     public static void main(String[] args) {
         new Thread(new ConcurrentHashmapThread("url01")).start();
         new Thread(new ConcurrentHashmapThread("url02")).start();
@@ -42,8 +30,20 @@ public class ConcurrentHashmapThread implements Runnable {
 
         System.out.println(InMemory.urls);
     }
+
+    @Override
+    public void run() {
+        for (int i = 0; i < 100; i++) {
+            InMemory.urls.put(url, String.valueOf(i));
+            urls.put(url, String.valueOf(i));
+        }
+    }
+
+    public HashMap<String, String> getUrls() {
+        return this.urls;
+    }
 }
 
-class InMemory{
+class InMemory {
     public final static HashMap<String, String> urls = new HashMap<>();
 }

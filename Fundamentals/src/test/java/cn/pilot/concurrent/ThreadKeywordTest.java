@@ -2,7 +2,7 @@ package cn.pilot.concurrent;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ThreadKeywordTest {
     private ThreadKeyword demo = new ThreadKeyword();

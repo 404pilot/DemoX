@@ -1,6 +1,5 @@
 package cn.pilot.concurrent;
 
-import cn.pilot.init.Inheritance;
 import org.junit.Test;
 
 import java.util.concurrent.Callable;
