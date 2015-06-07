@@ -119,6 +119,7 @@ root@docker:~# docker attach 505cba62efa1
 * container 是动态的，在 launch 一个 image 之后，内部修改的话，会有自动构建多个containers，每个 container 可以 save 为一个新的 image。container 是 runtime instance of image
 	* run `docker ps -a` to show all containers
 	* run `docker commit` to create a image from the container
+* 每次 container run 一下都会有个新的 container，只有 save 了才是 image
 
 ## commands
 
@@ -173,6 +174,8 @@ docker rm -f _runningContainerId
 docker rmi _imageId
 
 docker logs
+// follow, like tail command
+docker logs -f _container
 ```
 
 ---
@@ -317,10 +320,10 @@ Best Practice:
 所以怎么 debug 呢？得有个方法去进入到 container 内部去操作。
 
 1. **nsenter** 
-* allows us to enter namespaces
-* requires the containers PID (get from `docker inspect`)
-* `docker inspect _containerId | grep Pid`
-* `nsenter -m - u -n -p -i -t _pid /bin/bash`
+	* allows us to enter namespaces
+	* requires the containers PID (get from `docker inspect`)
+	* `docker inspect _containerId | grep Pid`
+	* `nsenter -m - u -n -p -i -t _pid /bin/bash`
 2. `docker-enter _containerId`
 3. `docker exec -it _containerId /bin/bash`
 
@@ -339,10 +342,240 @@ docker push _user/_name:_tag
 
 layer/image is shared. Only new layer (diff) will be uploaded.
 
+build的时候一样，本地有某个 image cache 的话，也是直接用。估计是用的 hash id 来确定具体 image 的。It is called Build Cache
+
+
+``` shell
+apt-get clean \
+&& rm -rf /var/lib/apt/list/* /tmp/* /var/tmp/*
+```
+
+适当的在 Dockerfile 中合并 image layers 可以减少 image 大小
+
+### CMD or ENTRYPOINT
+无论是`CMD`还是`ENTRYPOINT`，最后的命令都是需要一直运行了，container 才不会退出。
+
+```
+ENTRYPOINT service tomcat7 start && tail -f /var/lib/tomcat7/logs/catalina.out
+```
+
+或者可以`/tomcat/bin/start`
+
+#### ENTRYPOINT
+`Entrypoint`一般用来指定 image  的 default action，一般就是想要的那个服务了。 
+
+* 无法被`docker run`来 override（但是也是可以被`docker run --entrypoint`来 override的）
+* any command at run-time is used as an argument to `ENTRYPOINT` （见下面的例子）
+* 默认是 run `bin/sh -c`去执行`ENTRYPOINT`里的 command
+
+``` plain
+root@docker:~/demo# cat Dockerfile
+FROM ubuntu
+ENTRYPOINT ["echo"]
+
+root@docker:~/demo# docker build -t demo .
+Sending build context to Docker daemon 2.048 kB
+Sending build context to Docker daemon
+Step 0 : FROM ubuntu
+ ---> fa81ed084842
+Step 1 : ENTRYPOINT echo
+ ---> Running in 5043cb975286
+ ---> 32f1a1048308
+Removing intermediate container 5043cb975286
+Successfully built 32f1a1048308
+
+root@docker:~/demo# docker run demo hellow world
+hellow world
+
+root@docker:~/demo# docker run -it demo /bin/bash
+/bin/bash
+```
+
+`/bin/bash`被 interpret 成`ENTRYPOINT`的 argument
+
+可以指指定一个`ENTRYPOINT`，然后在`docker run`传入不同给的 arguments 来带来不同的 behavior
+
+docker 有个 default `ENTRYPOINT`， 就是`/bin/sh -c`，所以用`docker run /bin/bash`就是`/bin/sh -c /bin/bash`
+
+``` plain
+ENTRYPOINT ["executable"]
+CMD ["param1","param2"]
+```
+这样就可以有个默认的带 arguments 的container，并且可以用`docker run`来修改 default arguments
+
+``` plain
+ENTRYPOINT ["executable","param0"]
+CMD ["param1","param2"]
+```
+这样写会导致`param0`不会被`docker run`修改
+
+#### CMD
+* `docker run <args> <command>`会 override 那个在 Dockerfile 里的 CMD
+* Dockerfile 里面 CMD 只会 run 最后一个（如果有多个  CMD 的话）
+
+`CMD`后面可以跟：
+
+1. Shell Form
+	* Commands are expressed the same way as shell commands
+	* Commands get prepended by `"bin/sh -c"`, e.g. `CMD echo "hello world"`(直接用 sh 来 run 这个 echo 命令)
+	* variable expansion etc..., e.g. `CMD echo $var1`（见下面例子）
+2. Exec Form (preferred form)
+	 * JSON array style, e.g. `CMD ["echo", "hello world"]` (也是 get prepended by `bin/sh -c`)
+	 * Containers don't need a shell
+	 * Avoids string munging by the shell
+	 * no shell features (no variable expansion, no special characters($$, ||, >>))
+
+``` plain
+ENV var1=ping var2=8.8.8.8
+CMD $var1 $var2
+```
+
+###  ENV
+
+* `ENV`写一行也就only one layer
+* container 里面能用`ENV`环境变量
+* Dockerfile 里面也能用
+
+``` plain
+ENV myName="John Doe" myDog=Rex\ The\ Dog \
+    myCat=fluffy
+```
+
+### VOLUME
+
+Dockerfile里的`VOLUME`只能指定 container 里的 mount point
+
+TODO: docker rm -v 
+
 ## debug commands
 
 ``` plain
 docker images --tree
 
-docker history _imageId
+docker history _image
+```
+
+these commands can be used to see how a custom image is created steps by steps based on various image layers
+
+`docker port _id`来查看 container 的 port mapping
+
+``` plain
+root@docker:~# ifconfig
+docker0   Link encap:Ethernet  HWaddr 56:84:7a:fe:97:99
+          inet addr:172.17.42.1  Bcast:0.0.0.0  Mask:255.255.0.0
+          inet6 addr: fe80::5484:7aff:fefe:9799/64 Scope:Link
+          UP BROADCAST MULTICAST  MTU:1500  Metric:1
+          RX packets:106270 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:106229 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:8756552 (8.7 MB)  TX bytes:10240962 (10.2 MB)
+```
+用 docker0 来通信
+
+主机 ip 有
+
+1. `127.0.0.1`
+2. 对外“真实”：`10.10.152.8`
+
+ip `0.0.0.0`表示上面二种
+
+所以经常有些配置文件比如 mysql.conf之类，如果要外部能访问的话，设置0.0.0.0
+
+1. 这样本机能通过`127.0.0.1`来 access
+2. 外部服务能通过`10.10.152.8`来 access
+
+TODO: docker linking
+
+`ls -1`
+
+
+## Docker Daemon Logging/ Containers Logging
+
+``` plain
+$ service docker stop
+
+$ docker -d -l debug &
+```
+
+`docker -d`应该会重新启动 docker server
+
+``` plain
+root@docker:~# docker ps
+
+DEBU[0248] Calling GET /containers/json
+INFO[0248] GET /v1.18/containers/json
+INFO[0248] +job containers()
+INFO[0248] -job containers() = OK (0)
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+```
+
+CLI (client) send REST request to docker server
+
+`docker -d >> <file> 2>&1`
+
+也可以
+
+``` plain
+root@docker:~# vi /etc/default/docker
+
+root@docker:~# cat /etc/default/docker
+# Docker Upstart and SysVinit configuration file
+
+# Customize location of Docker binary (especially for development testing).
+DOCKER="/usr/bin/docker"
+
+
+# Use DOCKER_OPTS to modify the daemon startup options.
+DOCKER_OPTS=' --host=unix:///var/run/docker.sock --restart=false --log-level=debug'
+
+
+# If you need Docker to use an HTTP proxy, it can also be specified here.
+
+# This is also a handy place to tweak where Docker's temporary files go.
+
+
+root@docker:~# ps -ef | grep docker
+root     31218 30481  0 17:04 pts/0    00:00:00 docker -d -l debug
+root     32141 30481  0 17:14 pts/0    00:00:00 grep --color=auto docker
+
+root@docker:~# service docker stop
+stop: Unknown instance:
+root@docker:~# kill 31218
+root@docker:~# INFO[0647] Received signal 'terminated', starting shutdown of docker...
+DEBU[0647] starting clean shutdown of all containers...
+INFO[0647] -job serveapi(unix:///var/run/docker.sock) = OK (0)
+
+[1]+  Done                    docker -d -l debug
+
+root@docker:~# service docker start
+docker start/running, process 32258
+
+root@docker:~# ps -ef | grep docker
+root     32258     1  1 17:15 ?        00:00:00 /usr/bin/docker -d --host=unix:///var/run/docker.sock --restart=false --log-level=debug
+root     32296 30481  0 17:15 pts/0    00:00:00 grep --color=auto docker
+```
+
+`/etc/default/docker`可以指定默认启动参数
+
+TODO: `DOCKER_OPTS=' --host=unix:///var/run/docker.sock --restart=false --log-level=debug'`好像不起作用
+
+## How to write Dockerfile
+
+
+`docker run -it --name test ubuntu:15.04 /bin/bash`
+
+一边用 container 里的 bash 调试，一边写（记录步骤）Dockerfile
+
+troubleshooting 的时候，可以运行`docker images`去看哪些 layers 成功 build 了，哪些失败了，再对照 Dockerfile 来找。也可以在 build 的时候看 steps info
+
+* `docker run -it _imageId /bin/bash`用 bash 来调试 image
+* `docker exec -it _containerId /bin/bash`用 bash 来调试 container
+
+
+
+One liner to stop / remove all of Docker containers:
+
+``` plain
+docker stop $(docker ps -a -q)
+docker rm $(docker ps -a -q)
 ```
