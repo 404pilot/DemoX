@@ -63,4 +63,30 @@ public class InheritanceTest {
         assertTrue(ce instanceof CE);
         assertTrue(ce instanceof PE);
     }
+
+    @Test
+    public void f() throws Exception {
+        PF pf = new CF();
+
+        assertTrue(pf.getVar() == 2);
+
+        CF cf = new CF();
+
+        assertTrue(cf.getVar() == 2);
+
+        // same as PF pf = new CF()
+        PF cf2pf = (PF) cf;
+        assertTrue(cf2pf.getVar() == 2);
+    }
+
+    @Test
+    public void g() throws Exception {
+        CG cg = new CG();
+
+        assertTrue(cg.copy == 0);
+
+        PG pg = (PG) cg;
+
+        assertTrue(pg.copy == 1);
+    }
 }

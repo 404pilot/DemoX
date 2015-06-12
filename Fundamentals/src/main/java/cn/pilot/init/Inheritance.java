@@ -1,5 +1,7 @@
 package cn.pilot.init;
 
+import lombok.Getter;
+
 public class Inheritance {
     public static void main(String[] args) {
 
@@ -8,11 +10,11 @@ public class Inheritance {
 
 // *************************************
 class PA {
-    int var = 1;
+    public int var = 1;
 }
 
 class CA extends PA {
-    int var = 2;
+    public int var = 2;
 }
 
 // *************************************
@@ -93,4 +95,34 @@ class PE {
 }
 
 class CE extends PE {
+}
+
+// *************************************
+@Getter
+class PF {
+    private int var = 1;
+}
+
+@Getter
+class CF extends PF {
+    private int var = 2;
+}
+
+// *************************************
+class PG {
+    public int var = 1;
+    public int copy;
+
+    public PG() {
+        this.copy = var;
+    }
+}
+
+class CG extends PG {
+    public int var = 2;
+    public int copy;
+
+    public CG() {
+        super();
+    }
 }

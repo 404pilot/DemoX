@@ -107,5 +107,52 @@ new Child()：
 		// this is not an override method
 		public void method()
 	}
+	
+## Summary
+
+* 对于`instance.var`直接访问变量，`var`是由`instance`的 declare type 来定
+* 对于`instance.method()`方法调用，`method()`是看`instance`实际new 的那个 type
+* 对于`private`修饰的，不存在 override，所以实际中不太可能直接访问变量，除非是 public static 的
+* 一般可以这么理解，this 就是本类，super 跳转到父类（此时父类里的 this 就是父类自己）
+
+比如 B 情况
+
+``` java
+class PB {
+    private int var = 1;
+
+    public int getVar() {
+        return this.var;
+    }
+}
+
+class CB extends PB {
+    private int var = 2;
+
+    @Override
+    public int getVar() {
+        return this.var;
+    }
+}
+```
+
+结果
+
+``` java
+@Test
+public void b() throws Exception {
+   PB pb = new CB();
+
+   assertTrue(pb.getVar() == 2);
+}
+```
+方法是跑到 CB，这个时候 this 也是 CB，var 是根据 declare 来看的。
+
+所以 template class 的子类 override 方法的时候，方法里用到的常量可以重新在子类里更改 // TODO 例子
 
 
+``` java
+class Template{
+	private
+}
+```
