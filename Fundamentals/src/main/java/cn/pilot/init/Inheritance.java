@@ -18,21 +18,14 @@ class CA extends PA {
 }
 
 // *************************************
+@Getter
 class PB {
     private int var = 1;
-
-    public int getVar() {
-        return this.var;
-    }
 }
 
+@Getter
 class CB extends PB {
     private int var = 2;
-
-    @Override
-    public int getVar() {
-        return this.var;
-    }
 }
 
 // *************************************
@@ -100,12 +93,12 @@ class CE extends PE {
 // *************************************
 @Getter
 class PF {
-    private int var = 1;
+    public int var = 1;
 }
 
 @Getter
 class CF extends PF {
-    private int var = 2;
+    public int var = 2;
 }
 
 // *************************************

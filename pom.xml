@@ -38,12 +38,6 @@
             <artifactId>mockito-all</artifactId>
             <version>1.10.19</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-all</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
