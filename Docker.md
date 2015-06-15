@@ -588,13 +588,14 @@ docker rm $(docker ps -a -q)
 
 如何deploy到test
 
-1. Glassfish或者tomcat的docker container
+1. start elasticsearch and get its ip address
+2. Glassfish或者tomcat的docker container
 	* `VOLUME`: mount war file location
 	* `VOLUME`: mount log files
-	* `ENV`: set proper environmental properties
+	* `ENV`: set proper environmental properties (e.g. elasticsearch ip)
 2. 打包source code成war file
 3. 启动webserver container，mount 创建打包好的 war file 到 web server container
-4. start web server container & elastic search container
+4. start web server container and return its address (static ip?)
 
 
 TODO: docker compose?
