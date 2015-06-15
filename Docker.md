@@ -579,3 +579,22 @@ One liner to stop / remove all of Docker containers:
 docker stop $(docker ps -a -q)
 docker rm $(docker ps -a -q)
 ```
+
+* `ADD`添加stuff到container里
+* `WORKDIR`指定dockerfile里面命令的默认执行path
+
+
+#### some thoughts
+
+如何deploy到test
+
+1. Glassfish或者tomcat的docker container
+	* `VOLUME`: mount war file location
+	* `VOLUME`: mount log files
+	* `ENV`: set proper environmental properties
+2. 打包source code成war file
+3. 启动webserver container，mount 创建打包好的 war file 到 web server container
+4. start web server container & elastic search container
+
+
+TODO: docker compose?
