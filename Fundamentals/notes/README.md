@@ -6,34 +6,49 @@
 ``` plain
 ├── Collection
 │   ├── List
-│   │   ├── ArrayList
+│   │   ├── ArrayList **
 │   │   └── LinkedList
 │   Set
-│   ├── HashSet
-│   └── LinkedHashSet
+│   ├── HashSet **
+│   └── TreeSet *
 └── Map
-    ├── HashMap
+    ├── HashMap **
+    ├── TreeMap *
     └── WeakHashMap
 ```
 
-< image> 
+## Summary
 
-常见就是
+ **Methods**
+
+* Common:
+	* add(Element)
+	* contains(Object)
+	* isEmpty() -> O(1)
+	* iterator() -> O(1)
+	* remove(Object)
+	* size() -> O(1)
+* rare
+	* addAll(Collection)
+	* containsAll(Collection)
+	* removeAll(Collection)
+
+**Not synchronized**
 
 * ArrayList
 * HashSet
-* HashMap
-
-然后
-
-* TreeMap
-* TreeSet
 * LinkedList
 
-并发 几个
+**Null element**
 
-weakHashmap
+* Null allowed
+	* ArrayList
+	* HashSet
+	* LinkedList
+* Null not allowed (will throw NullPointerException)
+	* ArrayDeque
 
+### Big O
 
 Class | Foundation | Operation | Big O | Explanation
 --- | --- | --- | --- | --- 
@@ -44,19 +59,15 @@ Class | Foundation | Operation | Big O | Explanation
 | | | get(index) | O(1)
 | | | remove(index) | O(n) | move whole subarray
 | | | set(index,elem) | O(1)
-| | | size() | O(1)
 ||| iterator.remove()|O(n)
 |||listIterator.add(elem)|O(n)
 | |
-**HashSet** | hash & linkedlist (a HashMap instance)| add(elem) | O(1) 
+**HashSet** | hash & linkedlist (a HashMap instance)| add(elem) | O(1)/O(n) | rehash 
 || | contains(obj) | O(1)
-|||isEmpty() | O(1)
 |||remove(obj) | O(1)
-||| size() | O(1)
-|||add(elem) | O(1)/O(n) | rehash
 |||
-**LinkedList** | **doubly-linked** list | add(elem) | O(1)
-|||add(index,elem)|O(1) | doubly的才保证可以直接往末尾加
+**LinkedList** | **doubly-linked** list | add(elem) | O(1) | doubly的才保证可以直接往末尾加, singly可以直接往前面加应该
+|||add(index,elem)|O(n) | 
 |||addAll(collection)|O(1)
 |||addAll(index,collection)|O(n+m)|find first, then traverse to the end of inserted linked list
 |||contains(elem)|O(n)
@@ -69,22 +80,59 @@ Class | Foundation | Operation | Big O | Explanation
 |||poll()|O(1)
 |||peek()|O(1)
 
+HashSet中的分析是基于 hash 冲突少的原则，否则一个 bucket 上太多 element，效率会很低
 
-null is available to arraylist, hashset, linkedlist, and they are all not synchronized
 
-Permit Null element:
+### LinkedList or ArrayList
 
-* ArrayList
-* HashSet
-* LinkedList
+LinkedList
 
-Null element not allowed:
+* Pros:
+	* `Iterator.remove()`或者`ListIterator.add(e)`消耗小，但是`remove()`还是需要遍历（O(n)）
+	* 不需要 resize，无法预知 size 使用 LinkedList **理论**上比较好
+* Cons:
+	* 有多余的 next reference
+	* 对 memory cache 不太友好
+	* 每个 node 在内存地址上不连续
 
-* ArrayDeque
+ArrayList
 
-常用ArrayList,HashSet, TreeMap, TreeSet都 are all not synchronized
+* Pros:
+	* index 直接访问
+* Cons:
+	* 可能需要 resize (1.5 times the size)
+	* 直接访问
 
-Hashset: 有个 capacity// TODO when to rehash
+**二者 remove() 都是 O(n)**
+
+理论上
+
+* iterate 的时候，要进行 add 或者 remove -> LinkedList
+* size 无法预知，可能非常大的时候 -> LinkedList (no resize needed)
+* random get -> ArrayList
+
+实际中 LinedList 基本不用，只是理论上效率更好
+
+LinkedList **主要 benefit 是 iterator.remove/add**，直接 remove 跟 ArrayList 差不多，ArrayList 的好处是成块成块，真实中效率不一定会太差
+
+### HashSet
+
+实际就是 Array+LInkedList 
+
+1. hashValue = hash(element)
+2. save element @ array[hashValue] bucket
+	* each bucket has a linked list. Newly added element will put at the first one
+	* // TODO 哪个先，哪个后
+减少冲突才能保证 HashSet 各个操作能达到O(1)，所以 hash algorithm 很重要。实际中直接使用 IDE 自带 generate hashCode()，一般会用到一个 prime 质数
+
+
+hashcode & equals() which one is first
+capacity? how to rehash
+
+linkedlist + hash
+
+hashset 其实是个 map
+
 
 it's very important not to set the initial **capacity** too high (or the load factor too low) if iteration performance is important
 
@@ -92,20 +140,6 @@ it's very important not to set the initial **capacity** too high (or the load fa
 * too low：冲突太多
 
 //TODO capacity & load factor 如何设置？
-
-LinkedList元素太散，实际 performance 不一定比  ArrayList 就高很多
-### adfasdf
-hashset 其实是个 map
-
-* ArrayList, HashSet, HashMap is NOT synchronized
-
-ArrayList 默认自增一半长度
-
-HashMap允许在Key和Value中都出现null值
-
-有些 key，value 不允许 null 啊，会直接抛出 NullPointerException
-
-### HashSet
 
 HashSet本质上是一个Collection，类似于List，是列表/集合，不是K-V的Map，但是它骨子里是一个HashMap……
 
@@ -159,15 +193,22 @@ public V put(K key, V value) {
 [1]. HashSet判断、删除和添加元素等操作依据的是被操作元素所在的类的hashCode()和equals( )这两个方法。
 [2]. ArrayList做同等的操作，依据的仅仅是equals( )方法
 
-常见容器与工具类
+### ArrayDeque
 
-ArrayList
+ 推荐替代 LinkedList 和 Stack
 
-数据结构采用的是线性表，优势是访问和查询十分方便，但添加和删除的时候效率很低。
+* offer()
+* poll()
+* push()
+* pop()
+* ~~~add()~~~: ArrayDeque继承 Collection，不推荐使用`add()`
 
-LinkedList
 
-数据结构采用的是链表，优势是删除和添加的效率很高，但随机访问元素时效率较ArrayList类低。
+
+
+
+
+
 
 HashSet
 
@@ -237,24 +278,5 @@ public class Test {
 }
 ```
 
-## Collection Method
-
-Common:
-
-* add(Element)
-* contains(Object)
-* isEmpty()
-* iterator()
-* remove(Object)
-* size()
-
-rare
-
-* addAll(Collection)
-* containsAll(Collection)
-* removeAll(Collection)
-
-
-## Reference
-1. [HashMap，HashSet，Hashtable，Vector，ArrayList 的关系](http://segmentfault.com/a/1190000002900115)
-2. [Java 容器知识整理](http://segmentfault.com/a/1190000002903035)
+###
+[big o cheat sheet](http://bigocheatsheet.com/)
