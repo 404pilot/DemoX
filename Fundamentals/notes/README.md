@@ -103,11 +103,11 @@ ArrayList
 	* 可能需要 resize (1.5 times the size)
 	* 直接访问
 
-**二者 remove() 都是 O(n)**
+**二者 add() & remove() 都是 O(n)**
 
 理论上
 
-* iterate 的时候，要进行 add 或者 remove -> LinkedList
+* **iterate 的时候**，要进行 add 或者 remove -> LinkedList
 * size 无法预知，可能非常大的时候 -> LinkedList (no resize needed)
 * random get -> ArrayList
 
@@ -115,83 +115,60 @@ ArrayList
 
 LinkedList **主要 benefit 是 iterator.remove/add**，直接 remove 跟 ArrayList 差不多，ArrayList 的好处是成块成块，真实中效率不一定会太差
 
-### HashSet
+### HashSet 
 
 实际就是 Array+LInkedList 
 
 1. hashValue = hash(element)
 2. save element @ array[hashValue] bucket
-	* each bucket has a linked list. Newly added element will put at the first one
-	* // TODO 哪个先，哪个后
+	* each bucket has a linked list. Newly added element will put at the **end** of the list
+
 减少冲突才能保证 HashSet 各个操作能达到O(1)，所以 hash algorithm 很重要。实际中直接使用 IDE 自带 generate hashCode()，一般会用到一个 prime 质数
 
+##### `hashCode()` & `equals()`
+> Equals is always called **after** the hashCode method in a java hashed collection while adding and removing elements. The reason being, if there is an element already at the specified bucket, then JVM checks whether it is the same element which it is trying to put. In case if the equals returns false then the element is added to the same bucket but at the end of list at the bucket. So now you just dont have a single element at the same bucket but a list of elements.
 
-hashcode & equals() which one is first
-capacity? how to rehash
+> Now while retrieving the element, first hashCode will be called to reach the desired bucket and then the list will be scanned using the equals to fetch the desired element.
 
-linkedlist + hash
+> The ideal implemenation of hashCode will make sure the size of list at each bucket is 1. And hence the retrieval of elements is done using O(1) complexity. But if there are mulitple elements stored in the list at a bucket, then the retreival of element will be done by O(n) complexiy, where n is the size of the list.
 
-hashset 其实是个 map
+> Btw in case of HashSet there is no list created at the bucket, rather the object is simply replaced if hashcode and equals are same. The ist creation behavior is in hashmap.
+
+> [http://stackoverflow.com/questions/17919464/hashcode-and-equals-method](http://stackoverflow.com/questions/17919464/hashcode-and-equals-method)
 
 
-it's very important not to set the initial **capacity** too high (or the load factor too low) if iteration performance is important
+* `hashCode()`比`equals()`会先使用
+* `contains()`也是，如果hash 不一样，直接 return false
 
-* too high：要不然内存地址无法连续，损耗也挺大
-* too low：冲突太多
+建立高效的hashCode会使得hashSet添加元素的过程更为高效。hashCode的值不同，则调用equals()方法比较的环节便可以省去。ArrayList做同等的操作，依据的仅仅是equals( )方法。
 
-//TODO capacity & load factor 如何设置？
 
-HashSet本质上是一个Collection，类似于List，是列表/集合，不是K-V的Map，但是它骨子里是一个HashMap……
+##### capacity & load factor
+* max elements = capacity * load factor
+* default load factor = 0.75
+* default initial capacity = 12
+* if max elements are reached, capacity will be **doubled**
 
-这么说可能会更易于理解：
-HashSet对外是“类”的集合，实际上是内部维护了一个HashMap进行实现。
+> You need a size/load-factor to avoid a resize. Note: it will always be the next power of 2 for HashSet & HashMap.
 
-实际上存储的是两个：**hashCode和类本身**（字符串/自定义类等）。
+* load factor
+	* too high: decrease the space but increase the lookup cost (一直在 linkededlist 上找，相当于遍历)
+	* too low: the opposite
+* initial capacity
+	* too high: space 大，不连续，lookup 效率不好
+	* too low: 冲突太多
 
-HashSet进行add的时候，会先进行验证hashCode：
-(HashSet进行add操作实际上是对Map的put操作)
+> The expected number of entries in the map and its load factor should be taken into account when setting its initial capacity, so as to minimize the number of rehash operations. If the initial capacity is greater than the maximum number of entries divided by the load factor, no rehash operations will ever occur.
 
-就是 `hashCode(instance) -> instance`
+##### HashSet & HashMap
+HashSet对外是“类”的集合 Collection，实际上是内部维护了一个HashMap进行实现。
 
-拿就是直接用`hashcode(instance)`去 map 里找
+实际上存储的是两个：**hashCode**和**类本身**（字符串/自定义类等）。
 
-判断 instance 是否 identical，是要看`hashcode`和`equals()`
-> HashSet 判断两个对象相等的标准除了要求通过 equals() 方法比较返回 true 之外，还要求两个对象的 hashCode() 返回值相等。而上面程序没有重写 Name 类的 hashCode() 方法，两个 Name 对象的 hashCode() 返回值并不相同，因此 HashSet 会把它们当成 2 个对象处理，因此程序返回 false。如果想返回true，需要重写equals方法和hashCode方法。
+就是 `hashCode(instance) -> instance`，拿就是直接用`hashcode(instance)`去 map 里找
 
-``` java
-public V put(K key, V value) {
-    if (table == EMPTY_TABLE) {
-        inflateTable(threshold);
-    }
-    if (key == null)
-        return putForNullKey(value);
-    int hash = hash(key);//本函数里有hashCode
-    int i = indexFor(hash, table.length);
-    for (Entry<K,V> e = table[i]; e != null; e = e.next) {
-        Object k;
-        if (e.hash == hash && ((k = e.key) == key || key.equals(k))) {
-            V oldValue = e.value;
-            e.value = value;
-            e.recordAccess(this);
-            return oldValue;
-        }
-    }
+HashSet进行add的时候，会先进行验证hashCode：(HashSet进行add操作实际上是对Map的put操作)
 
-    modCount++;
-    addEntry(hash, key, value, i);
-    return null;
-}
-```
-
-2). 开发中的建议
-(1). 自定义对象，一定要重写hashCode和equals两个方法
-       如果不重写，则默认的本地方法hashCode【OS来产生】会产生值都不一样的hashCode，即使内容重复的元素也会被添加到HashSet中，无法保证元素的唯一性。
-【注意】开发中重写这两个方法，方便集合框架的底层调用这些方法。
-(2). 建立高效的hashCode会使得hashSet添加元素的过程更为高效。
-       hashCode的值不同，则调用equals()方法比较的环节便可以省去。
-
-[1]. HashSet判断、删除和添加元素等操作依据的是被操作元素所在的类的hashCode()和equals( )这两个方法。
-[2]. ArrayList做同等的操作，依据的仅仅是equals( )方法
 
 ### ArrayDeque
 
@@ -204,15 +181,7 @@ public V put(K key, V value) {
 * ~~~add()~~~: ArrayDeque继承 Collection，不推荐使用`add()`
 
 
-
-
-
-
-
-
-HashSet
-
-数据结构采用的是散列表，主要是设计用来做高性能集运算的，例如对两个集合求交集、并集、差集等。集合中包含一组不重复出现且无特性顺序的元素。其值是不可重复与无序的。
+## To be Continuted
 
 TreeSet
 
@@ -229,18 +198,6 @@ TreeMap
 Arrays、Collections
 
 这两者可以理解成工具类，提供一些处理容器类静态方法，比如二分查找，排序等等。
-
-
-ArrayList VS LinkedList
-
-因为Array是基于索引(index)的数据结构，它使用索引在数组中搜索和读取数据是很快的。Array获取数据的时间复杂度是O(1),但是要删除数据却是开销很大的，因为这需要重排数组中的所有数据。
-
-相对于ArrayList，LinkedList插入是更快的。因为LinkedList不像ArrayList一样，不需要改变数组的大小，也不需要在数组装满的时候要将所有的数据重新装入一个新的数组，这是ArrayList最坏的一种情况，时间复杂度是O(n)，而LinkedList中插入或删除的时间复杂度仅为O(1)。ArrayList在插入数据时还需要更新索引（除了插入数组的尾部）。
-
-类似于插入数据，删除数据时，LinkedList也优于ArrayList。
-
-LinkedList需要更多的内存，因为ArrayList的每个索引的位置是实际的数据，而LinkedList中的每个节点中存储的是实际的数据和前后节点的位置。
-
 
 常用的声明方式（使用静态代码块）：
 
@@ -278,5 +235,5 @@ public class Test {
 }
 ```
 
-###
+## Reference
 [big o cheat sheet](http://bigocheatsheet.com/)
