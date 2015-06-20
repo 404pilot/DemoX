@@ -38,6 +38,7 @@
 * ArrayList
 * HashSet
 * LinkedList
+* TreeSet
 
 **Null element**
 
@@ -79,6 +80,10 @@ Class | Foundation | Operation | Big O | Explanation
 ||FIFO/QUEUE operations| offer(elem)|O(1)
 |||poll()|O(1)
 |||peek()|O(1)
+|||
+**TreeSet**|red-black tree|add(elem)|O(logn)
+|||remove(elem)|O(logn)
+|||contains(elem)|O(logn)
 
 HashSet中的分析是基于 hash 冲突少的原则，否则一个 bucket 上太多 element，效率会很低
 
@@ -138,13 +143,20 @@ LinkedList **主要 benefit 是 iterator.remove/add**，直接 remove 跟 ArrayL
 
 
 * `hashCode()`比`equals()`会先使用
-* `contains()`也是，如果hash 不一样，直接 return false
+* `contains()`也是，如果hash 不一样，直接 return false。（fail fast）
 
 建立高效的hashCode会使得hashSet添加元素的过程更为高效。hashCode的值不同，则调用equals()方法比较的环节便可以省去。ArrayList做同等的操作，依据的仅仅是equals( )方法。
 
+``` java
+class Custom{
+	AnotherCustom another;
+}
+```
+
+`Custom`和`AnotherCustom`都需要覆写`hashCode()`
 
 ##### capacity & load factor
-* max elements = capacity * load factor
+* **max elements = capacity * load factor**
 * default load factor = 0.75
 * default initial capacity = 12
 * if max elements are reached, capacity will be **doubled**
@@ -170,6 +182,53 @@ HashSet对外是“类”的集合 Collection，实际上是内部维护了一�
 HashSet进行add的时候，会先进行验证hashCode：(HashSet进行add操作实际上是对Map的put操作)
 
 
+### TreeSet
+基于 red-black tree，主要操作的复杂度就是 tree height：O(logn)
+
+红黑树add，remove 都会 adjust 自身的 height，是一个平衡的二叉树
+
+数据结构使用的是红黑树，**性能上低于HashSet，用于排序**。
+
+##### Sort
+默认使用 natural ordering：小的在前
+
+**TreeSet排序根本不会用到`hashCode()`& `equals()`**
+
+`contains()`用的是`compareTo()`来判断的
+
+想象一下，整个tree 的操作就是用 compare 的操作来 add，remove，contains 的
+
+``` java
+class Custom implements Comparable{
+    @Override
+    public int compareTo(Object o) {
+        return 0;
+    }
+}
+```
+
+or
+
+``` java
+new TreeSet(customComparator)
+
+class CustomComparator implements Comparator {
+
+    @Override
+    public int compare(Object o1, Object o2) {
+        return 0;
+    }
+}
+```
+
+compare
+
+1. return negative: 本身或者前者小
+2. return 0：相同
+3. return positive：...
+
+
+
 ### ArrayDeque
 
  推荐替代 LinkedList 和 Stack
@@ -178,26 +237,19 @@ HashSet进行add的时候，会先进行验证hashCode：(HashSet进行add操作
 * poll()
 * push()
 * pop()
-* ~~~add()~~~: ArrayDeque继承 Collection，不推荐使用`add()`
+* ~~add()~~: ArrayDeque继承 Collection，不推荐使用`add()`
 
 
-## To be Continuted
+## Some methods
 
-TreeSet
+Arrays、Collections: 这两者可以理解成工具类，提供一些处理容器类静态方法，比如二分查找，排序等等。
 
-数据结构使用的是红黑树，**性能上低于HashSet，用于排序**。
+``` java
+Arrays.toString(int[] integers)
 
-HashMap
+List list = Arrays.asList("elment1", "element2");
+```
 
-数据结构使用的是散列表，是最常用的是Collection
-
-TreeMap
-
-与TreeSet同理，用于排序。
-
-Arrays、Collections
-
-这两者可以理解成工具类，提供一些处理容器类静态方法，比如二分查找，排序等等。
 
 常用的声明方式（使用静态代码块）：
 
@@ -226,14 +278,6 @@ public class Test {
 ```
 
 这种方式，相当于重载HashMap的一个匿名实现，向原有的HashMap中添加了一个匿名构造方法。
-
-另外附加一个List/Set变量的声明方式：
-
-``` java
-public class Test {
-    public final static List list = Arrays.asList("elment1", "element2");
-}
-```
 
 ## Reference
 [big o cheat sheet](http://bigocheatsheet.com/)
