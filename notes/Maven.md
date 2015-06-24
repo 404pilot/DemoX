@@ -18,16 +18,15 @@
 > Classifier可能是最容易被忽略的Maven特性，但它确实非常重要，我们也需要它来帮助规划坐标。设想这样一个情况，有一个jar项目，就说是 dog-cli-1.0.jar 吧，运行它用户就能在命令行上画一只小狗出来。现在用户的要求是希望你能提供一个zip包，里面不仅包含这个可运行的jar，还得包含源代码和文档，换句话说，这是比较正式的分发包。这个文件名应该是怎样的呢？dog-cli-1.0.zip？不够清楚，仅仅从扩展名很难分辨什么是Maven默认生成的构件，什么是额外配置生成分发包。如果能是dog-cli-1.0-dist.zip就最好了。这里的dist就是classifier，默认Maven只生成一个构件，我们称之为主构件，那当我们希望Maven生成其他附属构件的时候，就能用上classifier。常见的classifier还有如dog-cli-1.0-sources.jar表示源码包，dog-cli-1.0-javadoc.jar表示JavaDoc包等等。制作classifier的方式多种多样，其中最重要的一种是使用Maven Assembly Plugin，感兴趣的读者可以进一步研究。
 
 ### Prefix
-以前自己是直接导入各种 jar 到工程的 lib 文件夹。因为 jar 中是包含各个依赖的，如果出现二个 jar 使用不同版本的相同 jar，冲突会难以解决。而 maven 打包的 jar 中，第三方依赖是描述在 pom.xml 中，并不直接存在 jar 中，剔除会非常容易。如果选择不使用 maven，那就要另外选择办法了。maven 是一套标准，你不遵循他，也就无法很简单的利用 maven 的产品了。
+以前自己是直接导入各种 jar 到工程的 lib 文件夹。因为 jar 中是包含各个依赖的，如果出现二个 jar 使用不同版本的相同 jar，冲突会难以解决。而 maven 打包的 jar 中，**第三方依赖是描述在 pom.xml 中**，并不直接存在 jar 中，剔除会非常容易。如果选择不使用 maven，那就要另外选择办法了。
+
+maven 是一套标准，你不遵循他，也就无法很简单的利用 maven 的产品了。你要使用它，就需要预知 pom.xml 在 jar 包中的存在。
 
 ### jar
-
-首先要明白，maven 是有着自己一套标准的。
-
 默认Maven生成的JAR包：
 
 1. 编译生成的.class文件
-2. 项目资源文件。
+2. 项目资源文件。（含 pom.xml）
 
 这样的 jar 就是最常用的，直接在 maven 工程中使用坐标导入。`mvn dependency:tree`去解决多个 jar 和工程本身的依赖传递问题。
 
