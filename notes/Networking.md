@@ -1,6 +1,6 @@
 # Network
 
-IPv4长度是32bit，每一段8bit [0,255] ( 2 ^ 8 )
+IPv4长度是32bit，每一段8bit [0,255]  255 = 2 ^ 8 -1 
 
 `ifconfig`列出的都是**本机** network interface，有些是真实的（有对应的 network adapter），有些是虚拟的。实际的 network adapter 肯定都有真实的 mac address
 
@@ -461,7 +461,32 @@ containers 互相连接其某个服务，因为 ip不固定，所以不太好直
 ### summary
 
 * bridge 下，host 和 guest 可以互联，各自都有 IP（可以都是局域网 IP）「实际 automation 要注意这些 ip 都是动态分配的，不是很好处理」
-* bridge 下，guest 跟 host 是直接连接，guest 连接外部网络需要走 guest 的 default gateway 和 host 的 gateway，多了一层 network virtualization
+* bridge 下，guest 跟 host 是直接连接，guest 连接外部网络需要走 guest 的 default gateway 和 host 的 gateway，多了一层 network virtualization，效率比起 host-only 会低一点
 * NAT 下，host 只能通过 port forwarding 来访问 guest 服务，guest 可以通过 IP 直接连接 host
-* 虚拟机和 docker 都可以虚拟网关，来完成网络转发，`vboxnet`和`docker0`相当于是辅助的，都可以虚拟出一个子网供 box 和 container 使用
+* 虚拟机和 docker 都可以虚拟网关，来完成网络转发，`vboxnet`和`docker0`相当于是辅助的，都可以虚拟出一个子网供 box 和 container 使用。也可以理解`vboxnet`和`docker0`为交换机，连接二个不同的局域网，每个交换机可以连接多个相同内网的 vboxes 和 containers。
 * bridge 走的是 host 网络，NAT 走的是port forwarding，如果二个虚拟机，一个 bridge vbox，一个 NAT vbox，bridge vbox 是无法连接 NAT vbox的， 正如同host 无法连接 NAT vbox 一样
+* docker网络跟 vbox 网络有类似的地方，也有不同。vbox bridge的 machine 跟 host 是一个网段的，而 docker bridge 的 container 跟 `docker0`是一个网段的
+
+### 127.0.0.1 and 0.0.0.0
+
+* 127.0.0.1 就是 localhost，永远是自己，网络传输中不会出现127.0.0.1的数据包
+* `127.0.0.1/8`整个都是环回地址，用来测试本机的TCP/IP协议栈，发往这段A类地址数据包不会出网卡，网络设备不会对其做路由。
+* 0.0.0.0 表示的是本地任意地址，匹配本机
+* In the context of servers, 0.0.0.0 means "all IPv4 addresses on the local machine". If a host has two ip addresses, 192.168.1.1 and 10.1.2.1, and a server running on the host listens on 0.0.0.0, it will be reachable at both of those IPs. 也就是说一台机器，它可能有内网地址和外网地址（虚拟网卡，真实网卡），`bind-address`改为`0.0.0.0`之后，一个数据包是请求`10.1.2.1`这个公网地址也可以访问 mysql 了，而之前`bind-address=127.0.0.1`的时候，是只会监听 localhost 的请求，不会理会网络请求（目的地是公网对外地址的本机 IP`10.1.2.1`）
+
+### Switch and Router
+
+router更多的是路由转发，有规则
+
+switch 是分发，一根线变为多根线，第二层的东西，连接的是局域网
+
+## TODO
+
+http://www.cnblogs.com/rainman/archive/2013/05/06/3063925.html
+
+vbox 中的 bridge，nat，host-only
+
+1. bridge 创建的guest，跟 host 是一个地位，相当于在局域网又加入了一个主机，所以 host 跟 guest 是可以互联的。用的是 vmnet0 网络
+2. nat 创建的 guest，在外界看来就是 host，走的是端口转发，host 只能通过 port forwarding 连接 guest 的服务，guest 可以连接 host。用的是 vmnet8 网络
+3. host-only 创建的 guest，跟 host 一起是一个私有网络，guest 不能访问 internet，guest 和 host 可以互联
+
