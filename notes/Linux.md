@@ -10,3 +10,7 @@
     cut -d: -f1 /etc/passwd
     
     cat /etc/passwd
+
+#### list disk usage for a folder
+
+    du -h --max-depth=0 jenkins_home
