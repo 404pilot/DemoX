@@ -1,5 +1,26 @@
 # Docker
 
+
+## Best Practice
+
+* CMD 做 ENTRYPOINT 的默认参数
+* Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
+* 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
+
+```
+ENV myName="John Doe" \
+    myCat=fluffy
+
+EXPOSE 8080 80
+```
+
+## Cheat sheet
+```
+docker rmi -f $(docker images | grep "<none>" | awk "{print \$3}")
+
+docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q)
+```
+
 ## Cases
 
 #### How many processes are running & which process is `PID1`
@@ -24,11 +45,6 @@ CMD "bin/bash" "-c" "while sleep 2; do echo thinking; done"
 ```
 CMD ["/bin/bash", "-c", "while sleep 2; do echo thinking; done"]
 ```
-
-## Best Practice
-
-CMD 做 ENTRYPOINT 的默认参数
-
 
 ## Explanation
 
@@ -182,3 +198,57 @@ thinking
 
 summary
 * CMD 里都必须是一个 command，不能是 while-loop 这样
+
+---
+
+```
+vagrant@vagrant-ubuntu-trusty-64:~/share/test$ docker logs $(docker run -d busybox:ubuntu-14.04 ls /bin ) | grep sh
+ash
+sh
+sha1sum
+sha256sum
+sha512sum
+static-sh
+```
+
+* busybox用的`ash`
+
+---
+
+```
+# EXPOSE 8080
+
+$ docker run -d -p 0.0.0.0:8080:8080 test
+
+$ telnet 127.0.0.1 8080
+Trying 127.0.0.1...
+Connected to 127.0.0.1.
+Escape character is '^]'.
+
+^C^C^C^C
+Connection closed by foreign host.
+
+$ docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q)
+4aa60252eb73
+4aa60252eb73
+
+$ telnet 127.0.0.1 8080
+Trying 127.0.0.1...
+telnet: Unable to connect to remote host: Connection refused```
+```
+* `0.0.0.0`表示本机所有的 IP 地址，这样监听的方式，内网外网都可以访问
+* 就是不 expose 端口，run 的时候显示指定，也一样连接成功
+* 但是`docker run --link`的时候就需要了，默认的 env variable 会依据 `EXPOSE` 产生
+* 「猜测」`docker run --net="host"`会直接 expose 端口到主机，需要 Dockerfile 显示指明
+* 「官方」`EXPOSE` doesn’t define which ports can be exposed to the host or make ports accessible from the host by default. To expose ports to the host, at runtime, use the -p flag or the -P flag.
+* 所以还是显示 EXPOSE 比较好，也比较易读
+
+```
+$ docker run -d -p 8080 tomcat:8
+eae4c0c80b367e4876324467241ab40d5dceaab5ec4a95d0757be73803d5626a
+
+$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                     NAMES
+eae4c0c80b36        tomcat:8            "catalina.sh run"   1 seconds ago       Up 1 seconds        0.0.0.0:32768->8080/tcp   drunk_wilson
+```
+* 默认`docker run -p container_port`
