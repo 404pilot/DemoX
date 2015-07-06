@@ -34,6 +34,12 @@ $ docker exec -it test ps aux
 ENTRYPOINT ["echo", "hello world!"]
 ```
 
+#### switch user in container
+```
+su - jenkins
+```
+* since default user is root, sudo is not required.
+
 #### Keep container running
 
 ```
