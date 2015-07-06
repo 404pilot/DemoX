@@ -1,6 +1,6 @@
 # Network
 
-IPv4长度是32bit，每一段8bit [0,255]  255 = 2 ^ 8 -1 
+IPv4长度是32bit，每一段8bit [0,255]  255 = 2 ^ 8 -1
 
 `ifconfig`列出的都是**本机** network interface，有些是真实的（有对应的 network adapter），有些是虚拟的。实际的 network adapter 肯定都有真实的 mac address
 
@@ -55,7 +55,7 @@ gateway信息是不会出现在 ifconfig中，因为 ifconfig 都是本机信息
 private network addr
 
 * `10.x.x.x`: 公司用的多，因为数量多
-* 172.16.x.x - 172.31.x.x 
+* 172.16.x.x - 172.31.x.x
 * `192.168.x.x`: 家用
 
 ## example
@@ -198,7 +198,7 @@ lo        Link encap:Local Loopback
           TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
           collisions:0 txqueuelen:0
           RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
-          
+
 veth97d699a Link encap:Ethernet  HWaddr da:21:a7:04:e2:a6
           inet6 addr: fe80::d821:a7ff:fe04:e2a6/64 Scope:Link
           UP BROADCAST RUNNING  MTU:1500  Metric:1
@@ -228,7 +228,7 @@ default via 10.0.2.2 dev eth0
 * `Destination: 0.0.0.0`就是表示任意
 * `Genmask`就是子网掩码
 * `Gateway: 0.0.0.0`表示 unspecified。一般来说就是这个网段的 network 是直接连接的，没必要通过 gateway 中转了。就是类似于`192.168.1.103`去连接`192.168.1.104`，不会连接路由器了。
-* 默认任意不在 rule 里面的请求，会从`etho0`转发到`10.0.2.2` 
+* 默认任意不在 rule 里面的请求，会从`etho0`转发到`10.0.2.2`
 *  `10.0.2.x`的请求，会从`eth0`发送出去，没有指定 gateway
 * `172.17.x.x`的请求，会从 `docker0`发送出去，没有指定 gateway
 
@@ -241,7 +241,7 @@ vagrant@vagrant-ubuntu-trusty-64:~$ tracepath www.google.com
  1:  10.0.2.2                                              0.231ms
  2:  192.168.1.1                                           5.985ms asymm 64
  3:  no reply
-``` 
+```
 
 * 第一站是`default gateway`
 * 第二站是`192.168.1.1`
@@ -384,7 +384,7 @@ root@144ab6ded0c1:/# tracepath 10.0.2.15
 * `docker0`同时可以处理 host 到 container 的请求
 
 > Mode: bridge
-> 
+>
 With the networking mode set to `bridge` a container will use docker’s default networking setup. A bridge is setup on the host, commonly named **docker0**, and **a pair of veth interfaces** will be created for the container. One side of the veth pair will remain on the host attached to the bridge while the other side of the pair will be placed inside the container’s namespaces in addition to the loopback interface. An IP address will be allocated for containers on the bridge’s network and traffic will be routed though this bridge to the container.
 
 也许可以这么理解，bridge 模式下，docker 先创造出`docker0`这个 bridge，然后 container 都归这个 bridge 管，`docker0`在 host 网络中和 containers 网络中的 ip 是一样的。访问 host 的话，container 会通过`veth`来直接访问。
@@ -427,7 +427,7 @@ lo        Link encap:Local Loopback
 
 ```
 vagrant@vagrant-ubuntu-trusty-64:~$ docker run -it --net="host" debian /bin/bash
-root@vagrant-ubuntu-trusty-64:/# 
+root@vagrant-ubuntu-trusty-64:/#
 ```
 
 名字跟 host（这时是虚拟机）一模一样
@@ -471,8 +471,8 @@ containers 互相连接其某个服务，因为 ip不固定，所以不太好直
 
 * 127.0.0.1 就是 localhost，永远是自己，网络传输中不会出现127.0.0.1的数据包
 * `127.0.0.1/8`整个都是环回地址，用来测试本机的TCP/IP协议栈，发往这段A类地址数据包不会出网卡，网络设备不会对其做路由。
-* 0.0.0.0 表示的是本地任意地址，匹配本机
-* In the context of servers, 0.0.0.0 means "all IPv4 addresses on the local machine". If a host has two ip addresses, 192.168.1.1 and 10.1.2.1, and a server running on the host listens on 0.0.0.0, it will be reachable at both of those IPs. 也就是说一台机器，它可能有内网地址和外网地址（虚拟网卡，真实网卡），`bind-address`改为`0.0.0.0`之后，一个数据包是请求`10.1.2.1`这个公网地址也可以访问 mysql 了，而之前`bind-address=127.0.0.1`的时候，是只会监听 localhost 的请求，不会理会网络请求（目的地是公网对外地址的本机 IP`10.1.2.1`）
+* 0.0.0.0 表示的是本地任意地址，匹配本机所有 IP
+* In the context of servers, 0.0.0.0 means "all IPv4 addresses on the local machine". If a host has two ip addresses, 192.168.1.1 and 10.1.2.1, and a server running on the host listens on 0.0.0.0, it will be reachable at both of those IPs. 也就是说一台机器，它可能有内网（局域网）地址和外网地址，`bind-address`改为`0.0.0.0`之后，一个数据包是请求`10.1.2.1`这个公网地址也可以访问 mysql 了，而之前`bind-address=127.0.0.1`的时候，是只会监听 localhost 的请求，不会理会网络请求（目的地是公网对外地址的本机 IP`10.1.2.1`）。bind-adress 是监听地址，监听的地址，只有别人能访问到，才有可能监听到那个人的访问。也就是说，bind 的是局域网地址，外网用户是不可能访问到的，自然也就不能访问到数据库了。反之亦然。
 
 ### Switch and Router
 
@@ -489,4 +489,3 @@ vbox 中的 bridge，nat，host-only
 1. bridge 创建的guest，跟 host 是一个地位，相当于在局域网又加入了一个主机，所以 host 跟 guest 是可以互联的。用的是 vmnet0 网络
 2. nat 创建的 guest，在外界看来就是 host，走的是端口转发，host 只能通过 port forwarding 连接 guest 的服务，guest 可以连接 host。用的是 vmnet8 网络
 3. host-only 创建的 guest，跟 host 一起是一个私有网络，guest 不能访问 internet，guest 和 host 可以互联
-

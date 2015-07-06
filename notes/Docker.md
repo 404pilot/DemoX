@@ -135,7 +135,7 @@ $ docker logs $(docker run -d debian:stable echo $PATH)
 * 「个人之言」实际上 shell form 和 exec form 能直接运行的，只要是在这个 image 的 path 里都行，否则就要特别 specify full path 了
 * 「个人之言」CMD 和 ENTRYPOINT 都是谈论的 executable，while-loop 虽然可以在 shell 里运行，但算不上 executable command，要运行 while-loop，就必须吧 while-loop 当做是一个命令（`/bin/sh -c`）的参数
 * 「个人之言」文档里都是谈论的 executable，while-loop并不算一个很好的例子
-* 「官方」CMD 默认是被`/bin/sh -c`执行
+* 「官方」CMD shell form 默认是被`/bin/sh -c`执行
 * 「官方」exec 就要给 executable 的 full path
 * 一般`docker run -d debian:stable`这样，image 中都是没有 ENTRYPOINT 和 CMD 的，默认是被`/bin/sh -c` 运行，但必须都是命令
 
