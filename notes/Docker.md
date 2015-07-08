@@ -6,6 +6,7 @@
 * CMD 做 ENTRYPOINT 的默认参数
 * Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
 * 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
+* EXPOST, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
 
 ```
 ENV myName="John Doe" \
@@ -258,3 +259,14 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 eae4c0c80b36        tomcat:8            "catalina.sh run"   1 seconds ago       Up 1 seconds        0.0.0.0:32768->8080/tcp   drunk_wilson
 ```
 * 默认`docker run -p container_port`
+
+---
+```
+FROM debian:stable
+RUN mkdir /myvol && echo "hello world" > /myvol/greeting
+VOLUME /myvol
+
+$ docker logs $(docker run -d test cat /myvol/greeting)
+hello world
+```
+* VOLUME 会事先声明，在真正被 mount 之前，这个 volume 在 container 里还是存在的
