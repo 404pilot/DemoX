@@ -7,6 +7,7 @@
 * Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
 * 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
 * EXPOST, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
+* VOLUME 写在最后，否则 VOLUME 声明之后的再对 VOLUME 的行为都没有效果
 
 ```
 ENV myName="John Doe" \
