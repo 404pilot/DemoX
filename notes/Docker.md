@@ -41,6 +41,11 @@ su - jenkins
 ```
 * since default user is root, sudo is not required.
 
+#### run container with a specific user
+```
+docker run -it -u root jenkins:1.609.1 /bin/bash
+```
+
 #### Keep container running
 
 ```
