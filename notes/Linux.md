@@ -5,12 +5,17 @@
 
     telnet 127.0.0.1 8080
 
-#### list all users I can use
+#### all users
 
     cut -d: -f1 /etc/passwd
     
     cat /etc/passwd
 
-#### list disk usage for a folder
+#### disk usage for a folder
 
     du -h --max-depth=0 jenkins_home
+
+#### os version
+
+    uname -r
+    cat /etc/*-release
