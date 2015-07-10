@@ -27,3 +27,7 @@
 #### if ;else ;then; fi
 
     if ! id -u vagrant; then echo "not exist" ;else echo 'exist' ;fi;
+
+#### run command under another directory without switching
+
+    ( cd another_dir && ./run_shell.sh )
