@@ -19,3 +19,7 @@
 
     uname -r
     cat /etc/*-release
+
+#### if ;else ;then; fi
+
+    if ! id -u vagrant; then echo "not exist" ;else echo 'exist' ;fi;
