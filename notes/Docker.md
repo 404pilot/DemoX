@@ -4,6 +4,9 @@
 ## Best Practice
 
 * CMD 做 ENTRYPOINT 的默认参数
+* `docker run -it image /bin/bash`可以方便调试
+    * 只有一个命令用 CMD（覆写 CMD）
+    * ENTRYPOINT 和 CMD 一起使用时，在 ENTRYPOINT 中加入默认执行`exec "$@"`，
 * Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
 * 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
 * EXPOST, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
