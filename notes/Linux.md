@@ -4,6 +4,8 @@
 #### test port is opened or not
 
     telnet 127.0.0.1 8080
+    
+    exec 6<>/dev/tcp/127.0.0.1/8080 || echo "No one is listening"
 
 #### all users
 
