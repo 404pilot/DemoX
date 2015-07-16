@@ -39,7 +39,7 @@ cat /etc/*-release
 ```
 find /dir -type d -exec chmod 755 {} \;
 find /dir -type f -exec chmod 644 {} \;
-find /dir -type f -name "*.sh" -exec chmod 744{} \;
+find /dir -type f -name "*.sh" -exec chmod 744 {} \;
 
 # X means only giving eXecutable permission for directories 
 # and don't change a file's executable permission (it is what it was)
