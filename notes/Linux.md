@@ -1,5 +1,4 @@
 
-### port
 
 #### test port is opened or not
 
@@ -51,3 +50,19 @@ Directory (permission for its sub-directories and sub-files):
 r - ls (read dir lists)
 w - touch, mkdir, rm
 x - cd (enter into dir)
+
+#### configs for shell
+
+* `ssh` and `su - ` -> **interactive login shell**
+    1. `/etc/profile`
+    2. `~/.profile`
+* `bash -c "command"`
+    1. do nothing
+* "daily use" -> **interactive non-login shell**
+    1. `/etc/bash.bashrc`
+    2. `~/.bashrc`
+* `ssh server "command"`
+    1. `/etc/bash.bashrc`
+    2. `~/.bashrc`
+
+> https://wido.me/sunteya/understand-bashrc-and-profile
