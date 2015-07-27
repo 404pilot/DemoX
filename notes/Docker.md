@@ -279,3 +279,56 @@ $ docker logs $(docker run -d test cat /myvol/greeting)
 hello world
 ```
 * VOLUME 会事先声明，在真正被 mount 之前，这个 volume 在 container 里还是存在的
+* `-v`使用之后，原先 VOLUME 里的东西有**丢失**的可能
+
+`-v host-stuff:container-stuff`中`host-stuff`如果不存在，则 docker **默认**会在 host 中 create 一个 `host-stuff` 的  **directory**，所以 host 永远都是指向一个存在的文件或者文件夹
+
+-v | host | container | result
+--- | --- | --- | ---
+-v | folder | non-existed-folder | mount folder
+-v | folder | existed-folder | files in existed folder will all be lost
+-v | folder | existed-file | error
+-v | file | dir/existed-folder | error
+-v | file | dir/existed-file | rename to `existed-file` and rewrite this file with the content in host file
+-v | file | dir/non-existed-file | mount file to a file named `non-existed-file` under `dir`
+
+
+```
+$ docker logs $(docker run -d -v "$PWD/it-is-not-a-file.txt:/myvol" test ls -alF /myvol)
+total 4
+drwxr-xr-x  1 1000 1000   68 Jul 27 06:29 ./
+drwxr-xr-x 28 root root 4096 Jul 27 06:29 ../
+
+vagrant@vagrant-ubuntu-trusty-64:~/share/test$ ll
+total 4
+drwxr-xr-x 1 vagrant vagrant 204 Jul 27 06:29 ./
+drwxr-xr-x 1 vagrant vagrant 238 Jul 10 06:48 ../
+drwxr-xr-x 1 vagrant vagrant  68 Jul 27 04:44 data/
+-rw-r--r-- 1 vagrant vagrant  90 Jul 27 04:41 Dockerfile
+drwxr-xr-x 1 vagrant vagrant 102 Jul 27 06:15 folder/
+drwxr-xr-x 1 vagrant vagrant  68 Jul 27 06:29 it-is-not-a-file.txt/
+```
+
+* 直接 create 一个新的 **directory**
+
+```
+docker logs $(docker run -d -v "$PWD/folder/file.md":/myvol test ls -alF /myvol)
+Error response from daemon: Cannot start container a9b33a976eb1d9799a502d0753390557e7039260bfea0b66aa20defc9ee2d100: [8] System error: not a directory
+Timestamp: 2015-07-27 05:54:18.433955074 +0000 UTC
+Code: System error
+
+Message: not a directory
+```
+* 因为`myvol`在 container 中已经存在（Dockerfile）
+
+```
+$ cat folder/file.md
+# Test
+
+$ docker logs $(docker run -d -v "$PWD/folder/file.md":/file test cat  /file)
+# Test
+
+$ docker logs $(docker run -d -v "$PWD/folder/file.md":/myvol/greeting test cat /myvol/greeting)
+# Test
+```
+* host 文件可以直接 mount 到 container 里去（container 指明的是完整文件路径+文件名）
