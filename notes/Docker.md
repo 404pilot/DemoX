@@ -3,13 +3,34 @@
 ## Best Practice
 
 * CMD 做 ENTRYPOINT 的默认参数
-* `docker run -it image /bin/bash`可以方便调试
-    * 只有一个命令用 CMD（覆写 CMD）
-    * ENTRYPOINT 和 CMD 一起使用时，在 ENTRYPOINT 中加入默认执行`exec "$@"`
+* 为了`docker run -it image /bin/bash`可以方便调试，ENTRYPOINT 使用`docker-entrypoint.sh`，并非直接使用 executable
 * Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
+* EXPOSE, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
 * 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
-* EXPOST, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
 * VOLUME 写在最后，否则 VOLUME 声明之后的再对 VOLUME 的行为都没有效果
+
+``` sh
+#!/bin/bash
+
+set -e
+
+# Add elasticsearch as command if needed
+if [ "${1:0:1}" = '-' ]; then
+	set -- elasticsearch "$@"
+fi
+
+# Drop root privileges if we are running elasticsearch
+if [ "$1" = 'elasticsearch' ]; then
+	# Change the ownership of /usr/share/elasticsearch/data to elasticsearch
+	chown -R elasticsearch:elasticsearch /usr/share/elasticsearch/data
+	exec gosu elasticsearch "$@"
+fi
+
+# As argument is not related to elasticsearch,
+# then assume that user wants to run his own process,
+# for example a `bash` shell to explore this image
+exec "$@"
+```
 
 ```
 ENV myName="John Doe" \
@@ -59,7 +80,9 @@ CMD ["/bin/bash", "-c", "while sleep 2; do echo thinking; done"]
 ## Explanation
 
 ### ENTRYPOINT & CMD
-二者都是 container running 的时候才调用
+1. 二者都是 container running 的时候才调用
+2. 一般都是用 exec form，ENTRYPOINT 用 script，CMD 配默认参数
+3. 或者直接用 CMD，`docker run`也可以很容易的覆盖
 
 ```
 ENTRYPOINT ["echo", "hello"]
@@ -73,7 +96,6 @@ hello alien
 ```
 
 * CMD 和 ENTRYPOINT 一起出现的时候，CMD 全部作为 ENTRYPOINT 的 parameter
-* **CMD 主要是提供给 ENTRYPOINT 默认参数**
 * `docker run <image> command`会覆盖 CMD 的参数
 
 ```
@@ -103,12 +125,8 @@ hello alien
 ```
 
 * 再次证明，CMD shell form 是带`/bin/sh -c`的
-* Entrypoint 不用 exec form，`docker run image command` command 会失效
+* Entrypoint 不用 exec form，`docker run image command`中的command 会失效
 * 「猜测」: **exec form** 是直接找$PATH的 executable command，**shell form** 是去用`/bin/sh -c`运行
-
-##### summary
-
-* **shell form** 就只做单独的命令好了（没有 ENTRYPOINT），有 ENTRYPOINT 的话，就只做其的 parameters
 
 
 ```
@@ -249,7 +267,7 @@ telnet: Unable to connect to remote host: Connection refused
 ```
 
 * `0.0.0.0`表示本机所有的 IP 地址，这样监听的方式，内网外网都可以访问
-* 就是不 expose 端口，run 的时候显示指定，也一样连接成功
+* 就是不显式 expose 端口，run 的时候显示指定，也一样连接成功
 * 但是`docker run --link`的时候就需要了，默认的 env variable 会依据 `EXPOSE` 产生
 * 「猜测」`docker run --net="host"`会直接 expose 端口到主机，需要 Dockerfile 显示指明
 * 「官方」`EXPOSE` doesn’t define which ports can be exposed to the host or make ports accessible from the host by default. To expose ports to the host, at runtime, use the -p flag or the -P flag.
