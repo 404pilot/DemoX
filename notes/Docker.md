@@ -1,12 +1,11 @@
 # Docker
 
-
 ## Best Practice
 
 * CMD 做 ENTRYPOINT 的默认参数
 * `docker run -it image /bin/bash`可以方便调试
     * 只有一个命令用 CMD（覆写 CMD）
-    * ENTRYPOINT 和 CMD 一起使用时，在 ENTRYPOINT 中加入默认执行`exec "$@"`，
+    * ENTRYPOINT 和 CMD 一起使用时，在 ENTRYPOINT 中加入默认执行`exec "$@"`
 * Dockerfile 显式指明 EXPOSE port，易读，而且`docker run --link`需要它来生成 env variable
 * 尽量一行写 Dockerfile，ENV 和 EXPOSE 都一样
 * EXPOST, VOLUME 其实都是可以在 docker run 里运行动态配置，但是写在 Dockerfile 里更加易读和理解
@@ -34,11 +33,6 @@ $ docker exec -it test ps aux
 ```
 * only `PID1` process is able to receive `SIGTERM`(graceful shutdown), `SIGKILL`
 
-#### run shell command in Dockerfile
-```
-ENTRYPOINT ["echo", "hello world!"]
-```
-
 #### switch user in container
 ```
 su - jenkins
@@ -63,6 +57,9 @@ CMD ["/bin/bash", "-c", "while sleep 2; do echo thinking; done"]
 ```
 
 ## Explanation
+
+### ENTRYPOINT & CMD
+二者都是 container running 的时候才调用
 
 ```
 ENTRYPOINT ["echo", "hello"]
@@ -91,6 +88,7 @@ hello
 
 * CMD 作为 Entrypoint 默认参数的话，二者必须使用**exec form**
 * 为什么 CMD 做参数，要是**exec form**，因为**shell form**是带`/bin/sh -c`，理应只做单独一个 command
+* **shell form** 的作用就是来执行 shell command
 
 
 ```
@@ -106,13 +104,12 @@ hello alien
 
 * 再次证明，CMD shell form 是带`/bin/sh -c`的
 * Entrypoint 不用 exec form，`docker run image command` command 会失效
-* 以上种种说明，**exec form** 是直接找$PATH的 executable command，**shell form** 是去用`/bin/sh -c`运行
+* 「猜测」: **exec form** 是直接找$PATH的 executable command，**shell form** 是去用`/bin/sh -c`运行
 
-**summary**
+##### summary
 
-* 所以**shell form**就只做单独的命令好了（没有 ENTRYPOINT），有 ENTRYPOINT 的话，就只做其的 parameters
+* **shell form** 就只做单独的命令好了（没有 ENTRYPOINT），有 ENTRYPOINT 的话，就只做其的 parameters
 
----
 
 ```
 CMD ["echo", "${HOME}"]
@@ -141,14 +138,14 @@ $
 ```
 
 * 不知道为什么这个 echo 不出来，$HOME 就是 empty，跟 sh -c 有关？
+* 推荐就用 exec form，必须要用 environmental variable 再去选择用 shell form
 
----
 
 ```
 $ docker logs $(docker run -d debian:stable echo $PATH)
 /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
 ```
-* 「个人之言」实际上 shell form 和 exec form 能直接运行的，只要是在这个 image 的 path 里都行，否则就要特别 specify full path 了
+* 「个人之言」实际上 shell form 和 exec form 能直接运行的，只要是在这个 image 的 $path 里都行，否则就要特别 specify full path 了（遇到错误无法找到 executable 的东西）
 * 「个人之言」CMD 和 ENTRYPOINT 都是谈论的 executable，while-loop 虽然可以在 shell 里运行，但算不上 executable command，要运行 while-loop，就必须吧 while-loop 当做是一个命令（`/bin/sh -c`）的参数
 * 「个人之言」文档里都是谈论的 executable，while-loop并不算一个很好的例子
 * 「官方」CMD shell form 默认是被`/bin/sh -c`执行
@@ -211,11 +208,9 @@ $ docker logs demo
 thinking
 thinking
 ```
-
-summary
 * CMD 里都必须是一个 command，不能是 while-loop 这样
 
----
+### shell
 
 ```
 vagrant@vagrant-ubuntu-trusty-64:~/share/test$ docker logs $(docker run -d busybox:ubuntu-14.04 ls /bin ) | grep sh
@@ -229,7 +224,7 @@ static-sh
 
 * busybox用的`ash`
 
----
+### EXPOSE
 
 ```
 # EXPOSE 8080
@@ -250,8 +245,9 @@ $ docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q)
 
 $ telnet 127.0.0.1 8080
 Trying 127.0.0.1...
-telnet: Unable to connect to remote host: Connection refused```
+telnet: Unable to connect to remote host: Connection refused
 ```
+
 * `0.0.0.0`表示本机所有的 IP 地址，这样监听的方式，内网外网都可以访问
 * 就是不 expose 端口，run 的时候显示指定，也一样连接成功
 * 但是`docker run --link`的时候就需要了，默认的 env variable 会依据 `EXPOSE` 产生
@@ -267,9 +263,10 @@ $ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS                     NAMES
 eae4c0c80b36        tomcat:8            "catalina.sh run"   1 seconds ago       Up 1 seconds        0.0.0.0:32768->8080/tcp   drunk_wilson
 ```
-* 默认`docker run -p container_port`
+* 就算 Dockerfile 里定义了 EXPOSE，但还是需要`docker run`去指明
+* `docker run -p container_port`会自动 expost 一个 host port
 
----
+### VOLUME
 ```
 FROM debian:stable
 RUN mkdir /myvol && echo "hello world" > /myvol/greeting
