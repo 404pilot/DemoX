@@ -18,6 +18,10 @@
 
     du -h --max-depth=0 jenkins_home
 
+#### exit ssh connection
+
+type `~ .`
+
 #### os version
 
 ```
