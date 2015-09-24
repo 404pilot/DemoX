@@ -55,6 +55,18 @@ r - ls (read dir lists)
 w - touch, mkdir, rm
 x - cd (enter into dir)
 
+#### files under a folder and its subfolders
+
+```
+# delete all
+$ find . -name 'usagestand.*' -type f -delete
+
+# delete current location
+find *1.mp3 -delete
+
+$ find . -name 'usagestand.atomFeedUrls.properties' -type f -exec cat {} + | grep ord1
+```
+
 #### configs for shell
 
 * `ssh` and `su - ` -> **interactive login shell**
