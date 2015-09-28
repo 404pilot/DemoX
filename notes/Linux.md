@@ -20,7 +20,7 @@
 
 #### exit ssh connection
 
-type `~ .`
+type `enter` + `~` + `.`
 
 #### os version
 
