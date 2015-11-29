@@ -7,6 +7,11 @@
     exec 6<>/dev/tcp/127.0.0.1/8080 || echo "No one is listening"
 
     netstat -tulpn | grep :80
+    
+    netstat -nat | grep 3306
+    netstat -nat | grep LISTEN
+
+    lsof -n -P -i TCP -s TCP:LISTEN
 
 #### all users
 
