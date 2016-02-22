@@ -77,6 +77,13 @@ CMD "bin/bash" "-c" "while sleep 2; do echo thinking; done"
 CMD ["/bin/bash", "-c", "while sleep 2; do echo thinking; done"]
 ```
 
+#### run container inside vagrant
+
+```
+# Explictly specify 0.0.0.0:6379 to be exposed, otherwise service is not able to be exposed to application outside that vm
+docker run docker run -d --name redis-db -p 6379:6379 redis
+```
+
 ## Explanation
 
 ### ENTRYPOINT & CMD
