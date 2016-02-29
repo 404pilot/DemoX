@@ -9,7 +9,7 @@ scp -r _my_account@_server_ip:/opt/scripts ~/scripts/
 ##### files with different user
 1. copy files with correct roles to `/tmp/whatever`
 2. `chmod 777 /tmp/whatever`
-3. scp -r _my_account@_server_ip:/tmp/whatever ~/Downloads/
+3. `rm -rf /tmp/whatever && scp -r _my_account@_server_ip:/tmp/whatever ~/Downloads/`
 
 #### test port is opened or not
 
