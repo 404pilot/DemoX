@@ -6,7 +6,7 @@ scp _my_account@_server_ip:_file_location _local_file_location
 scp -r _my_account@_server_ip:/opt/scripts ~/scripts/
 ```
 
-##### files with different user
+###### files with different user
 ```
 # server
 cp -r /target /tmp/whatever && chmod 777 /tmp/whatever
@@ -15,6 +15,8 @@ cp -r /target /tmp/whatever && chmod 777 /tmp/whatever
 scp -r _my_account@_server_ip:/tmp/whatever ~/Downloads/
 
 ```
+[chmod all files under directory](https://github.com/404pilot/DemoX/blob/master/notes/Linux.md#permission)
+
 
 #### test port is opened or not
 
