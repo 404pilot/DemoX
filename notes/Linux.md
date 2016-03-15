@@ -17,7 +17,10 @@ scp -r _my_account@_server_ip:/tmp/whatever ~/Downloads/
 ```
 [chmod all files under directory](https://github.com/404pilot/DemoX/blob/master/notes/Linux.md#permission)
 
-
+#### ignore non-zeor exit code
+```
+cat non_existed.log || true
+```
 #### test port is opened or not
 
     telnet 127.0.0.1 8080
