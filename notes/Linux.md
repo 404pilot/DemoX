@@ -48,6 +48,7 @@ cat non_existed.log || true
     netstat -nat | grep 3306
     netstat -nat | grep LISTEN
 
+    lsof -i :8080
     lsof -n -P -i TCP -s TCP:LISTEN
 
 #### all users
