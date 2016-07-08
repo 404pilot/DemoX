@@ -44,6 +44,8 @@ EXPOSE 8080 80
 docker rmi -f $(docker images | grep "<none>" | awk "{print \$3}")
 
 docker stop $(docker ps -a -q) ; docker rm $(docker ps -a -q)
+
+docker run -i -t -u root -v "$PWD":/itheboss ubuntu /bin/bash
 ```
 
 ## Cases
