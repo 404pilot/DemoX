@@ -4,13 +4,13 @@
 # show how processes are spawn/ display a tree of processes
 pstree
 
-# tid: thread id; thcount: # of threads; psr: the processor that process is currently	assigned to
+# tid: thread id; thcount: # of threads; psr: the processor that process is currently assigned to
+# find process id first, then use following command to find process-thread relation
 ps -eo ruser,ppid,pid,tid,thcount,psr,args -L
 
 # press 'f', then 'j': select SMP -> column P is the one
 top -H
 ```
-
 
 #### Download files
 
