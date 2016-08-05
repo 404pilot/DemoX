@@ -5,7 +5,7 @@
 
 	ctrl + a/e			// start, end
 	
-	ctrl + b/f/n/p		// back, forward, next line, previous line 
+	ctrl + b/f/n/p		        // back, forward, next line, previous line 
 	
 	ctrl + h/d			// delete, forward delete
 	
@@ -20,6 +20,8 @@
 	ctrl + r/g			// [ctrl + r]+ :find the right command. [ctrl + g]: quit
 	
 	ctrl + w			// delete a word
+	
+	cd - 				// switch to previous directory
 	
 
 ## Mac
