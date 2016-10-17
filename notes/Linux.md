@@ -19,6 +19,7 @@ top -H
 scp _my_account@_server_ip:_file_location _local_file_location
 # folder
 scp -r _my_account@_server_ip:/opt/scripts ~/scripts/
+scp -r _my_account@_server_ip:/opt/logs/* ~/logs/
 ```
 
 ###### files with different user
