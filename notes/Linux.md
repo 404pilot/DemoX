@@ -8,6 +8,8 @@ pstree
 # find process id first, then use following command to find process-thread relation
 ps -eo ruser,ppid,pid,tid,thcount,psr,args -L
 
+ps -eo ruser,ppid,pid,tid,thcount,psr, pcpu -L
+
 # press 'f', then 'j': select SMP -> column P is the one
 top -H
 ```
