@@ -1,3 +1,29 @@
+## performance
+```
+jstack [pid]
+
+vmstat 1 5
+
+# thread, process, cpu usage
+ps
+top
+htop
+pstree
+
+# io
+## files
+pidstat、iostat、vmstat
+## network
+netstat -anp
+
+cat /proc/interruptes
+
+# memory, gc
+jmap -heap
+jstack -gcutil [pid]
+```
+
+
 ## threads, processors, cpu ids
 
 ```
