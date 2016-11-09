@@ -21,6 +21,9 @@ cat /proc/interruptes
 # memory, gc
 jmap -heap
 jstack -gcutil [pid]
+
+## list all threads that currently are belong to this java application
+jstack [pid]
 ```
 
 
@@ -34,7 +37,7 @@ pstree
 # find process id first, then use following command to find process-thread relation
 ps -eo ruser,ppid,pid,tid,thcount,psr,args -L
 
-ps -eo ruser,ppid,pid,tid,thcount,psr, pcpu -L
+ps -eo ruser,ppid,pid,tid,thcount,psr,pcpu -L
 
 # press 'f', then 'j': select SMP -> column P is the one
 top -H
