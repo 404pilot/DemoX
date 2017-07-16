@@ -80,7 +80,10 @@ cat non_existed.log || true
     netstat -nat | grep 3306
     netstat -nat | grep LISTEN
 
+    # list all applications using 8080
     lsof -i :8080
+    # the files opened by PID:124
+    lsof -p 124 
     lsof -n -P -i TCP -s TCP:LISTEN
 
 #### all users
