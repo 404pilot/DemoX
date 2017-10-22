@@ -64,7 +64,12 @@ scp -r _my_account@_server_ip:/tmp/whatever ~/Downloads/
 ```
 [chmod all files under directory](https://github.com/404pilot/DemoX/blob/master/notes/Linux.md#permission)
 
-#### ignore non-zeor exit code
+#### file something with file name & line no
+```
+grep -n 'threadlocal' file *.md
+```
+
+#### ignore non-zero exit code
 ```
 cat non_existed.log || true
 ```
