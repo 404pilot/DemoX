@@ -1,3 +1,13 @@
+## bash
+```
+# recommendation for headers in the bash srcipt
+set -euxo pipefail
+
+# recommendation # 2
+set -eux
+set -o pipefail
+```
+
 ## performance
 ```
 jstack [pid]
