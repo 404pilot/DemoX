@@ -3,10 +3,13 @@
 
 ``` shell
 # displays phase, id, plugin, plugin's goal within a maven project
-$ mvn fr.jcgay.maven.plugins:buildplan-maven-plugin:list
+mvn fr.jcgay.maven.plugins:buildplan-maven-plugin:list
+
+# show dependency
+mvn dependency:tree
 
 # show whole pom
-$ mvn help:effective-pom
+mvn help:effective-pom
 
 # available updates
 mvn versions:display-plugin-updates
