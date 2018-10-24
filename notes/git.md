@@ -1,5 +1,16 @@
 ## GIT
 
+##### 
+```
+# yesterday
+$ git commit 'WIP'
+$ git push
+
+# continue work today
+$ git reset HEAD^
+$ git push -f
+```
+
 ##### discard Changes
     git checkout -- .
     git checkout _commit/tag                    // 'detached HEAD' state
