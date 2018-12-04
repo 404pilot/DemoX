@@ -2,6 +2,11 @@
 
 ##### 
 ```
+# checkout remote branch in a local branch with same name
+git checkout -b test <name of remote>/test
+```
+
+```
 # yesterday
 $ git commit 'WIP'
 $ git push
